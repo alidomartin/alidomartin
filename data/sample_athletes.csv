@@ -1,0 +1,16 @@
+athlete,position,l_lateral_force,r_lateral_force,l_hip_abduction,r_hip_abduction,l_hip_ext_velocity,r_hip_ext_velocity,height_inches,wingspan_inches,vertical_jump,weight_lbs
+Scottie Barnes,Wing,92,95,88,91,94,90,79,87,85,225
+Player B,Guard,70,72,65,68,60,63,74,76,75,190
+Player C,Big,50,48,80,82,40,42,84,83,55,250
+Player D,Guard,85,83,70,74,88,85,73,75,90,195
+Player E,Wing,60,62,55,58,65,67,78,80,70,215
+Player F,Big,45,47,75,77,35,38,82,84,50,260
+Player G,Guard,78,80,60,62,82,80,72,74,88,185
+Player H,Wing,88,86,85,87,78,80,77,82,80,220
+Player I,Big,55,53,82,85,38,40,83,85,48,255
+Player J,Guard,90,88,68,70,92,89,74,76,92,192
+Player K,Wing,75,77,72,75,70,72,76,79,72,210
+Player L,Big,48,50,78,80,42,44,81,83,52,248
+Player M,Guard,82,84,63,66,85,82,73,75,86,188
+Player N,Wing,65,67,60,63,68,70,79,81,74,218
+Player O,Big,52,54,76,79,37,39,82,84,49,252
