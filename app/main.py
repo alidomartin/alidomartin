@@ -40,7 +40,9 @@ def _cmj_curve():
     )
     f[s : s + 8] = np.linspace(0, f[s + 8], 8)
 
-    return t.round(4), gaussian_filter1d(f, sigma=2).round(2)
+    f_smooth = gaussian_filter1d(f, sigma=2)
+    f_smooth[ix(1.81) : ix(2.42)] = 0.0  # clamp flight phase — filter bleeds landing spike backward
+    return t.round(4), f_smooth.round(2)
 
 
 @app.get("/api/cmj")
@@ -138,6 +140,8 @@ header{padding:1rem 1.25rem .5rem;border-bottom:1px solid #21262d}
 h1{font-size:1.3rem;font-weight:700}
 h1 em{font-style:normal;color:#58a6ff}
 #chart-wrap{padding:.5rem}
+#chart{height:280px}
+@media(min-width:768px){#chart{height:400px}}
 .pills-wrap{padding:.25rem 1rem .5rem;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .pills-wrap::-webkit-scrollbar{display:none}
 .pill{display:inline-block;margin-right:.4rem;padding:.42rem .9rem;border-radius:999px;border:2px solid;cursor:pointer;font-size:.78rem;font-weight:600;background:transparent;color:#e6edf3;transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent;user-select:none}
@@ -169,10 +173,16 @@ footer{text-align:center;font-size:.65rem;color:#484f58;padding:.75rem;border-to
 let _d = null;
 
 async function boot() {
-  const res = await fetch('/api/cmj');
-  _d = await res.json();
-  renderChart(null);
-  buildPills();
+  try {
+    const res = await fetch('/api/cmj');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    _d = await res.json();
+    renderChart(null);
+    buildPills();
+  } catch (err) {
+    document.getElementById('phase-info').innerHTML =
+      '<p style="color:#f87171;font-size:.85rem">Failed to load data. Is the server running? (' + err.message + ')</p>';
+  }
 }
 
 function renderChart(activeKey) {
@@ -215,7 +225,6 @@ function renderChart(activeKey) {
     paper_bgcolor: 'transparent',
     plot_bgcolor: 'transparent',
     margin: { t: 6, r: 10, b: 38, l: 52 },
-    height: window.innerWidth < 768 ? 280 : 400,
     xaxis: { title: 'Time (s)', color: '#8b949e', gridcolor: '#21262d', zeroline: false, tickfont: { size: 10, color: '#8b949e' } },
     yaxis: { title: 'Force (N)', color: '#8b949e', gridcolor: '#21262d', zeroline: false, tickfont: { size: 10, color: '#8b949e' } },
     legend: { x: 0, y: 1, font: { color: '#8b949e', size: 9 }, bgcolor: 'transparent', orientation: 'h' },
