@@ -563,3 +563,235 @@ plt.close()
 print("landing_summary.png saved")
 
 print("\nAll images generated successfully!")
+
+
+# ══════════════════════════════════════════════════════════════
+# STATS ONE–INSPIRED ADDITIONS
+# 1. CMJ TREND MONITORING DASHBOARD
+# 2. CMJ NORMATIVE BENCHMARKS
+# ══════════════════════════════════════════════════════════════
+
+# ──────────────────────────────────────────────────────────────
+# 1. CMJ TREND MONITORING DASHBOARD
+#    Multi-metric trend chart across a training block.
+#    Inspired by Stats One's Weekly Load / Wellness dashboards.
+# ──────────────────────────────────────────────────────────────
+
+rng = np.random.default_rng(42)
+
+sessions = np.arange(1, 25)   # 24 sessions (~12 weeks, 2x/week)
+labels_short = [f"W{(s - 1) // 2 + 1}S{(s - 1) % 2 + 1}" for s in sessions]
+
+# Simulated athlete metrics across a pre-season block
+# Jump Height (cm): starts moderate, peaks mid-block, slight taper at end
+jh_base = 42 + 6 * np.sin(np.linspace(0, np.pi, 24)) - np.linspace(0, 1.5, 24)
+jump_height = jh_base + rng.normal(0, 1.0, 24)
+
+# mRSI: follows similar arc, dips slightly post-match weeks
+mrsi_base = 0.88 + 0.12 * np.sin(np.linspace(0, np.pi, 24)) - np.linspace(0, 0.04, 24)
+mrsi = mrsi_base + rng.normal(0, 0.018, 24)
+mrsi[np.array([5, 11, 17, 21])] -= 0.06  # post-match dips
+
+# Limb Symmetry Index (LSI, %) — propulsive force asymmetry
+lsi_base = 96 + 2 * np.sin(np.linspace(0, 2 * np.pi, 24))
+lsi = lsi_base + rng.normal(0, 1.5, 24)
+lsi = np.clip(lsi, 82, 100)
+
+# Match days (sessions after which athlete played)
+match_sessions = [6, 12, 18, 22]
+
+# Traffic-light thresholds
+JH_AMBER, JH_GREEN = 38, 42        # cm
+MRSI_AMBER, MRSI_GREEN = 0.75, 0.85
+LSI_AMBER, LSI_GREEN = 90, 95       # %
+
+fig, axes = plt.subplots(3, 1, figsize=(13, 9), sharex=True)
+fig.suptitle("CMJ Trend Monitoring Dashboard", fontsize=16, fontweight="bold", y=0.98)
+
+panel_cfg = [
+    (axes[0], jump_height,  "Jump Height (cm)",          JH_AMBER,   JH_GREEN,   30,   52,  "#1a6faf", "Jump Height"),
+    (axes[1], mrsi,         "mRSI",                      MRSI_AMBER, MRSI_GREEN, 0.58, 1.05, "#2a9d8f", "mRSI"),
+    (axes[2], lsi,          "Propulsive LSI (%)",         LSI_AMBER,  LSI_GREEN,  78,   102,  "#7b4f9e", "LSI"),
+]
+
+for ax, data, ylabel, amber_t, green_t, ymin, ymax, color, label in panel_cfg:
+    # Traffic-light bands
+    ax.axhspan(ymin,    amber_t, color="#f5e6e6", alpha=0.55, zorder=0)
+    ax.axhspan(amber_t, green_t, color="#fff4e0", alpha=0.55, zorder=0)
+    ax.axhspan(green_t, ymax,    color="#e8f5e9", alpha=0.55, zorder=0)
+
+    # Threshold lines
+    ax.axhline(amber_t, color="#e07b39", linewidth=0.9, linestyle="--", alpha=0.7)
+    ax.axhline(green_t, color="#43a047", linewidth=0.9, linestyle="--", alpha=0.7)
+
+    # Match-day verticals
+    for ms in match_sessions:
+        ax.axvline(ms, color="#c0392b", linewidth=1.2, linestyle=":", alpha=0.55, zorder=1)
+
+    # Rolling 3-session mean
+    roll = np.convolve(data, np.ones(3) / 3, mode="same")
+    roll[:1]  = data[:1]
+    roll[-1:] = data[-1:]
+    ax.plot(sessions, roll, color=color, linewidth=2.2, zorder=3, label="3-session avg")
+
+    # Individual session dots, colored by traffic light
+    for s, v in zip(sessions, data):
+        dot_color = "#43a047" if v >= green_t else ("#e07b39" if v >= amber_t else "#c0392b")
+        ax.scatter(s, v, color=dot_color, s=38, zorder=4, edgecolors="white", linewidths=0.6)
+
+    ax.set_ylabel(ylabel, fontsize=10)
+    ax.set_ylim(ymin, ymax)
+    ax.tick_params(labelsize=8)
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+
+    # Band labels on right
+    ax.text(24.6, amber_t - (amber_t - ymin) * 0.5, "Below\nThreshold", fontsize=6.5,
+            color="#c0392b", va="center", ha="left")
+    ax.text(24.6, (amber_t + green_t) / 2,         "Caution",          fontsize=6.5,
+            color="#e07b39", va="center", ha="left")
+    ax.text(24.6, green_t + (ymax - green_t) * 0.4, "Optimal",          fontsize=6.5,
+            color="#43a047", va="center", ha="left")
+
+axes[2].set_xticks(sessions)
+axes[2].set_xticklabels(labels_short, rotation=45, ha="right", fontsize=7.5)
+axes[2].set_xlabel("Training Session", fontsize=10)
+
+# Legend
+legend_elements = [
+    plt.Line2D([0], [0], color="#1a6faf", lw=2, label="3-session rolling avg"),
+    plt.scatter([], [], color="#43a047", s=38, label="Optimal"),
+    plt.scatter([], [], color="#e07b39", s=38, label="Caution"),
+    plt.scatter([], [], color="#c0392b", s=38, label="Below threshold"),
+    plt.Line2D([0], [0], color="#c0392b", lw=1.2, ls=":", alpha=0.7, label="Match day"),
+]
+fig.legend(handles=legend_elements, loc="upper right", fontsize=8,
+           bbox_to_anchor=(0.99, 0.96), frameon=True)
+
+plt.tight_layout(rect=[0, 0, 0.93, 0.97])
+plt.savefig("images/cmj_trend_monitoring.png", dpi=150, bbox_inches="tight")
+plt.close()
+print("cmj_trend_monitoring.png saved")
+
+
+# ──────────────────────────────────────────────────────────────
+# 2. CMJ NORMATIVE BENCHMARKS
+#    Athlete result vs population bands (below / average / good / elite).
+#    Inspired by Stats One's benchmark dashboards.
+# ──────────────────────────────────────────────────────────────
+
+metrics = [
+    # (label,                    unit,  athlete, p25, p50, p75, elite,  direction)
+    ("Jump Height",              "cm",  46.2,    32,  38,  44,  52,     "higher"),
+    ("Peak Propulsive Force",    "× BW", 2.18,   1.7, 1.9, 2.2, 2.6,   "higher"),
+    ("Braking RFD",              "N/s",  4820,  2800,3500,4500, 6000,   "higher"),
+    ("Loading Rate",             "kN/s", 38.4,   25,  32,  42,  58,    "higher"),
+    ("mRSI",                     "",     0.91,   0.6, 0.75,0.90,1.10,  "higher"),
+    ("LSI — Propulsive",         "%",    96.8,   88,  92,  96,  99,    "higher"),
+    ("Control Time",             "ms",   23.5,   28,  24,  20,  15,    "lower"),
+    ("Takeoff Velocity",         "m/s",  3.01,   2.4, 2.7, 3.0, 3.5,  "higher"),
+]
+
+fig, ax = plt.subplots(figsize=(11, 7))
+ax.set_xlim(0, 100)
+n = len(metrics)
+ax.set_ylim(-0.5, n - 0.5)
+ax.axis("off")
+fig.patch.set_facecolor("white")
+
+fig.suptitle("CMJ Normative Benchmarks", fontsize=16, fontweight="bold", y=0.97)
+ax.text(50, n - 0.1, "Athlete result vs population percentile bands",
+        ha="center", va="bottom", fontsize=9, color="#555", style="italic")
+
+BAND_COLORS = ["#f5c6c6", "#fde8c8", "#d4edda", "#b8dfc8"]
+BAND_LABELS = ["Below Avg\n(<P25)", "Average\n(P25–P50)", "Good\n(P50–P75)", "Elite\n(>P75)"]
+BAND_TEXT_COLORS = ["#c0392b", "#e07b39", "#27ae60", "#1a7a4a"]
+
+bar_h = 0.52
+label_x = 0
+bar_start = 22
+bar_width = 62   # px units in 0-100 space
+
+for i, (label, unit, athlete, p25, p50, p75, elite, direction) in enumerate(metrics):
+    y = n - 1 - i
+
+    # Normalize positions to bar_start..bar_start+bar_width
+    lo, hi = (min(p25, elite) * 0.88, max(p25, elite) * 1.12) if direction == "higher" \
+             else (min(p25, elite) * 0.88, max(p25, elite) * 1.12)
+    lo  = min(p25, p75, elite) * 0.88
+    hi  = max(p25, p75, elite) * 1.10
+
+    def norm(v):
+        return bar_start + (v - lo) / (hi - lo) * bar_width
+
+    breakpoints = sorted([p25, p50, p75, elite]) if direction == "higher" \
+                  else sorted([elite, p75, p50, p25])
+
+    # Draw bands
+    band_edges = [lo] + sorted([p25, p50, p75, elite]) + [hi]
+    for b in range(4):
+        bx0 = norm(band_edges[b])
+        bx1 = norm(band_edges[b + 1])
+        bc = BAND_COLORS[b] if direction == "higher" else BAND_COLORS[3 - b]
+        ax.barh(y, bx1 - bx0, left=bx0, height=bar_h, color=bc, zorder=1)
+        ax.barh(y, bx1 - bx0, left=bx0, height=bar_h, color="none",
+                edgecolor="#ccc", linewidth=0.5, zorder=2)
+
+    # Percentile tick marks
+    for v, pct in [(p25, "P25"), (p50, "P50"), (p75, "P75"), (elite, "Elite")]:
+        xv = norm(v)
+        ax.plot([xv, xv], [y - bar_h / 2, y + bar_h / 2],
+                color="#888", linewidth=0.9, zorder=3)
+        ax.text(xv, y - bar_h / 2 - 0.06, pct, ha="center", va="top", fontsize=5.5, color="#888")
+
+    # Athlete marker
+    ax_v = norm(athlete)
+    ax.scatter(ax_v, y, color="#1a1a2e", s=90, zorder=5, marker="D")
+    ax.plot([ax_v, ax_v], [y - bar_h / 2, y + bar_h / 2],
+            color="#1a1a2e", linewidth=2.0, zorder=4)
+
+    # Percentile label for athlete
+    # Compute approximate percentile
+    if direction == "higher":
+        if   athlete >= elite: pct_label = "Elite"
+        elif athlete >= p75:   pct_label = f"P{int(75 + 25 * (athlete - p75) / (elite - p75))}+"
+        elif athlete >= p50:   pct_label = f"P{int(50 + 25 * (athlete - p50) / (p75 - p50))}"
+        elif athlete >= p25:   pct_label = f"P{int(25 + 25 * (athlete - p25) / (p50 - p25))}"
+        else:                  pct_label = f"<P25"
+    else:
+        if   athlete <= elite: pct_label = "Elite"
+        elif athlete <= p75:   pct_label = f"P{int(75 + 25 * (p75 - athlete) / (p75 - elite))}+"
+        elif athlete <= p50:   pct_label = f"P{int(50 + 25 * (p50 - athlete) / (p50 - p75))}"
+        elif athlete <= p25:   pct_label = f"P{int(25 + 25 * (p25 - athlete) / (p25 - p50))}"
+        else:                  pct_label = f"<P25"
+
+    val_str = f"{athlete}" if isinstance(athlete, int) or athlete != int(athlete) else str(int(athlete))
+    ax.text(ax_v + 1.2, y + 0.28, f"{athlete} {unit}  [{pct_label}]",
+            ha="left", va="center", fontsize=8, fontweight="bold", color="#1a1a2e", zorder=6)
+
+    # Metric label
+    ax.text(label_x, y, label, ha="left", va="center", fontsize=9.5, color="#222")
+
+# Legend
+legend_patches = [
+    mpatches.Patch(color=c, label=l)
+    for c, l in zip(BAND_COLORS, BAND_LABELS)
+]
+legend_patches.append(
+    plt.Line2D([0], [0], marker="D", color="w", markerfacecolor="#1a1a2e",
+               markersize=7, label="Athlete Result")
+)
+ax.legend(handles=legend_patches, loc="lower right", fontsize=8,
+          bbox_to_anchor=(1.0, 0.0), frameon=True, title="Percentile Bands", title_fontsize=8)
+
+ax.text(50, -0.85,
+        "Reference: McMahon et al. (2018) · Moran et al. (2021) · Healy et al. (2022)  |  "
+        "Bands represent professional / high-performance athlete populations",
+        ha="center", va="center", fontsize=6.5, color="#777", style="italic")
+
+plt.tight_layout(rect=[0, 0.02, 1, 0.96])
+plt.savefig("images/cmj_benchmarks.png", dpi=150, bbox_inches="tight")
+plt.close()
+print("cmj_benchmarks.png saved")
+
+print("\nStats One integration plots generated successfully!")
