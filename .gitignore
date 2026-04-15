@@ -1,0 +1,19 @@
+# Environment / secrets
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Generated magazine output (tracked separately)
+# magazine/output/  ← we DO want to commit these
+
+# Editor
+.DS_Store
+*.swp

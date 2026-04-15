@@ -1,0 +1,1 @@
+# Weekly Social Magazine package

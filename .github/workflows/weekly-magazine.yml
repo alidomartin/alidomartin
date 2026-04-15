@@ -1,0 +1,76 @@
+name: Weekly Social Magazine
+
+on:
+  # Every Saturday at 08:00 UTC — covers Mon–Sat posts
+  schedule:
+    - cron: "0 8 * * 6"
+
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      lookback_days:
+        description: "How many days of posts to include"
+        required: false
+        default: "7"
+
+jobs:
+  generate:
+    name: Generate magazine
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to push the generated HTML back to the repo
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate magazine
+        env:
+          # ── X (Twitter) ──────────────────────────────────────────
+          X_BEARER_TOKEN:          ${{ secrets.X_BEARER_TOKEN }}
+          X_USERNAME:              ${{ vars.X_USERNAME }}
+
+          # ── Instagram ────────────────────────────────────────────
+          INSTAGRAM_ACCESS_TOKEN:  ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID:       ${{ secrets.INSTAGRAM_USER_ID }}
+
+          # ── LinkedIn ─────────────────────────────────────────────
+          LINKEDIN_ACCESS_TOKEN:   ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_ID:      ${{ secrets.LINKEDIN_PERSON_ID }}
+
+          # ── WordPress ────────────────────────────────────────────
+          WORDPRESS_SITE_URL:      ${{ vars.WORDPRESS_SITE_URL }}
+          WORDPRESS_USERNAME:      ${{ secrets.WORDPRESS_USERNAME }}
+          WORDPRESS_APP_PASSWORD:  ${{ secrets.WORDPRESS_APP_PASSWORD }}
+
+          # ── Substack ─────────────────────────────────────────────
+          SUBSTACK_PUBLICATION_URL: ${{ vars.SUBSTACK_PUBLICATION_URL }}
+
+          # ── Magazine settings ────────────────────────────────────
+          MAGAZINE_TITLE:          ${{ vars.MAGAZINE_TITLE }}
+          MAGAZINE_AUTHOR:         ${{ vars.MAGAZINE_AUTHOR }}
+          MAGAZINE_OUTPUT_DIR:     magazine/output
+          LOOKBACK_DAYS:           ${{ github.event.inputs.lookback_days || '7' }}
+
+        run: python -m magazine.generator
+
+      - name: Commit and push generated magazine
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add magazine/output/
+          git diff --cached --quiet && echo "Nothing new to commit" && exit 0
+          DATE=$(date -u +"%Y-%m-%d")
+          git commit -m "chore: weekly magazine ${DATE}"
+          git push
