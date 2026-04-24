@@ -19,10 +19,13 @@ const LABEL_POSITIONS = [
   { x: 48, y: 136 },     // bottom-left sector
 ];
 
+// The wheel always shows the 3 physical sectors regardless of rotation pattern
+const WHEEL_SECTORS = ['value', 'connection', 'promotional'];
+
 export default function ContentWheel({ posts }) {
   const nextType = getNextType(posts);
   const angle = getWheelAngle(posts);
-  const nextIdx = ROTATION.indexOf(nextType);
+  const nextIdx = WHEEL_SECTORS.indexOf(nextType);
 
   const stats = useMemo(() => {
     const counts = { value: 0, connection: 0, promotional: 0 };
@@ -64,7 +67,7 @@ export default function ContentWheel({ posts }) {
               transition: 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
             }}
           >
-            {ROTATION.map((typeId, i) => {
+            {WHEEL_SECTORS.map((typeId, i) => {
               const type = POST_TYPES[typeId];
               const isActive = i === nextIdx;
               return (
@@ -101,7 +104,7 @@ export default function ContentWheel({ posts }) {
 
         {/* Legend + stats */}
         <div className="flex flex-col gap-3">
-          {ROTATION.map(typeId => {
+          {WHEEL_SECTORS.map(typeId => {
             const type = POST_TYPES[typeId];
             const isNext = typeId === nextType;
             return (

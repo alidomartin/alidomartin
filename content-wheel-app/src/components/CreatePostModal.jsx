@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Lightbulb } from 'lucide-react';
 import { POST_TYPES, PLATFORMS, ROTATION, getNextType } from '../utils/contentWheel';
 
-const MAX_CHARS = 2200;
+const MAX_CHARS = 3000;
 
 function toLocalDatetimeValue(iso) {
   if (!iso) return '';
@@ -17,16 +17,23 @@ function nowPlusHour() {
   return toLocalDatetimeValue(d.toISOString());
 }
 
+const SORTED_PLATFORMS = Object.entries(PLATFORMS)
+  .sort((a, b) => a[1].priority - b[1].priority);
+
+// Unique post types for the type selector (wheel rotation has repeats)
+const TYPE_OPTIONS = ['value', 'connection', 'promotional'];
+
 export default function CreatePostModal({ posts, editingPost, onSave, onClose }) {
   const suggestedType = getNextType(posts);
 
   const [type, setType] = useState(editingPost?.type ?? suggestedType);
   const [caption, setCaption] = useState(editingPost?.caption ?? '');
-  const [platforms, setPlatforms] = useState(editingPost?.platforms ?? []);
+  const [platforms, setPlatforms] = useState(editingPost?.platforms ?? ['linkedin']);
   const [scheduledAt, setScheduledAt] = useState(
     editingPost?.scheduledAt ? toLocalDatetimeValue(editingPost.scheduledAt) : nowPlusHour()
   );
   const [status, setStatus] = useState(editingPost?.status ?? 'scheduled');
+  const [showStarters, setShowStarters] = useState(false);
 
   useEffect(() => {
     const handleKey = e => { if (e.key === 'Escape') onClose(); };
@@ -38,6 +45,11 @@ export default function CreatePostModal({ posts, editingPost, onSave, onClose })
     setPlatforms(prev =>
       prev.includes(pid) ? prev.filter(p => p !== pid) : [...prev, pid]
     );
+  }
+
+  function useStarter(starter) {
+    setCaption(starter);
+    setShowStarters(false);
   }
 
   function handleSubmit(e) {
@@ -57,20 +69,22 @@ export default function CreatePostModal({ posts, editingPost, onSave, onClose })
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[92vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900">
-            {editingPost ? 'Edit Post' : 'New Post'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors"
-          >
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">
+              {editingPost ? 'Edit Post' : 'New Post'}
+            </h2>
+            {!editingPost && (
+              <p className="text-xs text-gray-400 mt-0.5">
+                Wheel suggests: {POST_TYPES[suggestedType].emoji} {POST_TYPES[suggestedType].label}
+              </p>
+            )}
+          </div>
+          <button onClick={onClose} className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors">
             <X size={18} />
           </button>
         </div>
@@ -78,32 +92,31 @@ export default function CreatePostModal({ posts, editingPost, onSave, onClose })
         <form onSubmit={handleSubmit} className="p-5 space-y-5">
           {/* Content Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Content Type
-              {!editingPost && (
-                <span className="ml-2 text-xs text-indigo-500 font-normal">
-                  (wheel suggests: {POST_TYPES[suggestedType].emoji} {POST_TYPES[suggestedType].label})
-                </span>
-              )}
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Content Type</label>
             <div className="grid grid-cols-3 gap-2">
-              {ROTATION.map(tid => {
+              {TYPE_OPTIONS.map(tid => {
                 const t = POST_TYPES[tid];
                 const active = type === tid;
+                const isSuggested = tid === suggestedType && !editingPost;
                 return (
                   <button
                     key={tid}
                     type="button"
                     onClick={() => setType(tid)}
-                    className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                    className={`relative flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all text-sm font-medium ${
                       active
-                        ? 'border-current shadow-sm'
+                        ? 'shadow-sm'
                         : 'border-gray-200 text-gray-500 hover:border-gray-300'
                     }`}
                     style={active ? { borderColor: t.color, color: t.color, backgroundColor: `${t.color}10` } : {}}
                   >
+                    {isSuggested && (
+                      <span className="absolute -top-1.5 -right-1.5 text-xs bg-indigo-500 text-white px-1 py-0.5 rounded-full leading-none">
+                        next
+                      </span>
+                    )}
                     <span className="text-xl">{t.emoji}</span>
-                    {t.label}
+                    <span className="text-center leading-tight">{t.shortLabel}</span>
                   </button>
                 );
               })}
@@ -115,19 +128,21 @@ export default function CreatePostModal({ posts, editingPost, onSave, onClose })
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Platforms</label>
             <div className="flex flex-wrap gap-2">
-              {Object.entries(PLATFORMS).map(([pid, p]) => (
+              {SORTED_PLATFORMS.map(([pid, p]) => (
                 <button
                   key={pid}
                   type="button"
                   onClick={() => togglePlatform(pid)}
+                  title={p.note}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm transition-all ${
                     platforms.includes(pid)
                       ? 'border-indigo-400 bg-indigo-50 text-indigo-700 font-medium'
-                      : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      : 'border-gray-200 text-gray-500 hover:border-gray-300'
                   }`}
                 >
                   <span>{p.emoji}</span>
                   {p.label}
+                  {pid === 'linkedin' && <span className="text-xs opacity-50">#1</span>}
                 </button>
               ))}
             </div>
@@ -137,25 +152,53 @@ export default function CreatePostModal({ posts, editingPost, onSave, onClose })
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-gray-700">Caption</label>
-              <span className={`text-xs ${charsLeft < 100 ? 'text-red-500' : 'text-gray-400'}`}>
-                {charsLeft} left
-              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowStarters(s => !s)}
+                  className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                >
+                  <Lightbulb size={12} />
+                  Hook starters
+                </button>
+                <span className={`text-xs ${charsLeft < 200 ? 'text-red-500' : 'text-gray-400'}`}>
+                  {charsLeft}
+                </span>
+              </div>
             </div>
+
+            {/* Hook starters dropdown */}
+            {showStarters && (
+              <div className="mb-2 bg-indigo-50 border border-indigo-100 rounded-xl p-3 space-y-1.5">
+                <p className="text-xs font-semibold text-indigo-600 mb-2 uppercase tracking-wide">
+                  Pick a hook — edit to make it yours
+                </p>
+                {typeInfo.promptStarters.map((starter, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => useStarter(starter)}
+                    className="w-full text-left text-xs text-indigo-800 hover:bg-indigo-100 px-3 py-2 rounded-lg transition-colors leading-relaxed"
+                  >
+                    {starter}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <textarea
               value={caption}
               onChange={e => setCaption(e.target.value.slice(0, MAX_CHARS))}
-              placeholder={`Write your ${typeInfo.label.toLowerCase()} post…`}
-              rows={5}
-              className="w-full border border-gray-200 rounded-xl p-3 text-sm text-gray-700 placeholder-gray-400 resize-none focus:border-indigo-400 transition-colors"
+              placeholder={`Write your ${typeInfo.shortLabel.toLowerCase()} post…\n\nTip: Start with a hook that stops the scroll.`}
+              rows={6}
+              className="w-full border border-gray-200 rounded-xl p-3 text-sm text-gray-700 placeholder-gray-400 resize-none focus:border-indigo-400 transition-colors leading-relaxed"
             />
           </div>
 
           {/* Schedule + Status */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Schedule for
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Schedule for</label>
               <input
                 type="datetime-local"
                 value={scheduledAt}
