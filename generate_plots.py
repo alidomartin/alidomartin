@@ -181,6 +181,10 @@ print("unweighting_phase.png saved")
 fig, ax = plt.subplots(figsize=(7, 4))
 plot_phase(ax, "braking")
 ax.set_title("Braking Phase", fontsize=14, fontweight="bold", pad=10)
+ax.text(0.50, 1580,
+        "\"Braking begins at peak negative\nCOM velocity and ends when\nvelocity returns to zero.\"",
+        fontsize=8, style="italic", color="#444", ha="center",
+        bbox=dict(boxstyle="round,pad=0.4", fc="white", ec="#aaa", lw=0.8))
 legend_patches = [
     mpatches.Patch(color=COLORS["braking"], alpha=0.6, label="Braking Phase"),
     plt.Line2D([0], [0], color=LINE_COLOR, lw=2, label="Vertical GRF"),
@@ -220,6 +224,10 @@ print("transfer_point.png saved")
 fig, ax = plt.subplots(figsize=(7, 4))
 plot_phase(ax, "propulsive")
 ax.set_title("Propulsive Phase", fontsize=14, fontweight="bold", pad=10)
+ax.text(0.50, 1580,
+        "\"The propulsive phase begins\nonce a positive COM velocity\nis achieved (≥ 0.01 m/s).\"",
+        fontsize=8, style="italic", color="#444", ha="center",
+        bbox=dict(boxstyle="round,pad=0.4", fc="white", ec="#aaa", lw=0.8))
 legend_patches = [
     mpatches.Patch(color=COLORS["propulsive"], alpha=0.6, label="Propulsive Phase"),
     plt.Line2D([0], [0], color=LINE_COLOR, lw=2, label="Vertical GRF"),
@@ -237,6 +245,10 @@ print("propulsive_phase.png saved")
 fig, ax = plt.subplots(figsize=(7, 4))
 plot_phase(ax, "flight", show_bw=False)
 ax.set_title("Flight Phase", fontsize=14, fontweight="bold", pad=10)
+ax.text(0.50, 1580,
+        "\"Jump height is calculated from\ntake-off velocity — the\nindustry gold standard.\"",
+        fontsize=8, style="italic", color="#444", ha="center",
+        bbox=dict(boxstyle="round,pad=0.4", fc="white", ec="#aaa", lw=0.8))
 legend_patches = [
     mpatches.Patch(color=COLORS["flight"], alpha=0.6, label="Flight Phase"),
     plt.Line2D([0], [0], color=LINE_COLOR, lw=2, label="Vertical GRF"),
@@ -253,6 +265,10 @@ print("flight_phase.png saved")
 fig, ax = plt.subplots(figsize=(7, 4))
 plot_phase(ax, "landing")
 ax.set_title("Landing Phase", fontsize=14, fontweight="bold", pad=10)
+ax.text(0.50, 1580,
+        "\"Bilateral force plates reveal\nasymmetries critical for\nreturn-to-play assessment.\"",
+        fontsize=8, style="italic", color="#444", ha="center",
+        bbox=dict(boxstyle="round,pad=0.4", fc="white", ec="#aaa", lw=0.8))
 legend_patches = [
     mpatches.Patch(color=COLORS["landing"], alpha=0.6, label="Landing Phase"),
     plt.Line2D([0], [0], color=LINE_COLOR, lw=2, label="Vertical GRF"),
