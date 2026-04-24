@@ -562,4 +562,115 @@ plt.savefig("images/landing_summary.png", dpi=150, bbox_inches="tight")
 plt.close()
 print("landing_summary.png saved")
 
+# ══════════════════════════════════════════════
+# DYNAMIC REBOUND INDEX (DRI) VISUALISATIONS
+# DRI = (Drop Height + Rebound Jump Height) / (9.81 × Contact Time²)
+# ══════════════════════════════════════════════
+
+def dri(h_drop, h_rebound, ct):
+    return (h_drop + h_rebound) / (9.81 * ct ** 2)
+
+# ──────────────────────────────────────────────
+# DRI 1: Athlete A vs Athlete B — component parts vs composite
+# ──────────────────────────────────────────────
+athletes = {
+    "Athlete A": {"h1": 0.40, "h2": 0.35, "ct": 0.26, "color": "#4472C4"},
+    "Athlete B": {"h1": 0.30, "h2": 0.28, "ct": 0.20, "color": "#F08080"},
+}
+for name, a in athletes.items():
+    a["dri"] = dri(a["h1"], a["h2"], a["ct"])
+
+fig, axes = plt.subplots(1, 4, figsize=(13, 4.2))
+labels = list(athletes.keys())
+colors = [athletes[n]["color"] for n in labels]
+
+metrics = [
+    ("Jump 1 Height (m)",    [athletes[n]["h1"]  for n in labels], "{:.2f}"),
+    ("Rebound Height (m)",   [athletes[n]["h2"]  for n in labels], "{:.2f}"),
+    ("Contact Time (s)",     [athletes[n]["ct"]  for n in labels], "{:.2f}"),
+    ("DRI (composite)",      [athletes[n]["dri"] for n in labels], "{:.2f}"),
+]
+
+for ax, (title, vals, fmt) in zip(axes, metrics):
+    bars = ax.bar(labels, vals, color=colors, edgecolor="#222", linewidth=1.2, width=0.55)
+    ax.set_title(title, fontsize=11, fontweight="bold", pad=8)
+    ax.tick_params(labelsize=9)
+    ax.set_ylim(0, max(vals) * 1.25)
+    for bar, v in zip(bars, vals):
+        ax.text(bar.get_x() + bar.get_width() / 2, v, fmt.format(v),
+                ha="center", va="bottom", fontsize=10, fontweight="bold")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+fig.suptitle("DRI: Higher Jumps ≠ Higher Index — Athlete A vs Athlete B",
+             fontsize=13, fontweight="bold", y=1.02)
+plt.tight_layout()
+plt.savefig("images/dri_athlete_comparison.png", dpi=150, bbox_inches="tight")
+plt.close()
+print("dri_athlete_comparison.png saved")
+
+# ──────────────────────────────────────────────
+# DRI 2: Sensitivity — DRI as a function of contact time
+# for a fixed combined jump height, overlaid with fixed-CT height sweep
+# ──────────────────────────────────────────────
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
+
+# Left: DRI vs Contact Time, for several total heights
+cts = np.linspace(0.14, 0.36, 200)
+heights = [0.55, 0.65, 0.75, 0.85]
+palette = ["#A8D5E2", "#F5C89A", "#F08080", "#9B7EBD"]
+
+for h, c in zip(heights, palette):
+    ax1.plot(cts, h / (9.81 * cts ** 2), color=c, linewidth=2.4,
+             label=f"Drop+Rebound = {h:.2f} m")
+
+# Mark the two athletes
+for name, a in athletes.items():
+    total_h = a["h1"] + a["h2"]
+    ax1.scatter([a["ct"]], [a["dri"]], color=a["color"], s=110, zorder=5,
+                edgecolor="black", linewidth=1.2)
+    ax1.annotate(f"{name}\n{a['dri']:.2f}",
+                 xy=(a["ct"], a["dri"]),
+                 xytext=(a["ct"] + 0.015, a["dri"] + 0.15),
+                 fontsize=9, fontweight="bold", color=a["color"])
+
+ax1.set_xlabel("Rebound Contact Time (s)", fontsize=11)
+ax1.set_ylabel("DRI", fontsize=11)
+ax1.set_title("DRI is Dominated by Contact Time (CT²)",
+              fontsize=12, fontweight="bold", pad=10)
+ax1.legend(fontsize=8.5, loc="upper right")
+ax1.grid(True, alpha=0.25)
+ax1.set_xlim(0.14, 0.36)
+ax1.set_ylim(0, 4.2)
+
+# Right: % change in DRI from a 1% change in CT vs a 1% change in height
+ct_ref = np.linspace(0.15, 0.35, 200)
+# dDRI/DRI = -2 * dCT/CT  (quadratic), and = dH/H (linear)
+ct_sensitivity = np.full_like(ct_ref, 2.0)  # |elasticity| w.r.t. CT
+h_sensitivity  = np.full_like(ct_ref, 1.0)  # |elasticity| w.r.t. total H
+
+ax2.fill_between(ct_ref, 0, ct_sensitivity, color="#F08080", alpha=0.35,
+                 label="DRI elasticity to Contact Time (|−2|)")
+ax2.fill_between(ct_ref, 0, h_sensitivity, color="#4472C4", alpha=0.35,
+                 label="DRI elasticity to Jump Height (|+1|)")
+ax2.axhline(2.0, color="#c0392b", linewidth=2)
+ax2.axhline(1.0, color="#1f3a93", linewidth=2)
+
+ax2.text(0.25, 2.12, "CT drives DRI ~2× more than height, per % change",
+         ha="center", fontsize=9.5, color="#c0392b", fontweight="bold")
+
+ax2.set_xlabel("Rebound Contact Time (s)", fontsize=11)
+ax2.set_ylabel("|% change in DRI per 1% change in input|", fontsize=11)
+ax2.set_title("Elasticity of DRI: CT² vs Height",
+              fontsize=12, fontweight="bold", pad=10)
+ax2.legend(fontsize=8.5, loc="upper right")
+ax2.set_ylim(0, 2.8)
+ax2.set_xlim(0.15, 0.35)
+ax2.grid(True, alpha=0.25)
+
+plt.tight_layout()
+plt.savefig("images/dri_sensitivity.png", dpi=150, bbox_inches="tight")
+plt.close()
+print("dri_sensitivity.png saved")
+
 print("\nAll images generated successfully!")
