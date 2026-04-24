@@ -84,19 +84,19 @@ def build_cmj_curve():
 
 T, F, PH = build_cmj_curve()
 
-# Color palette matching the reference style
+# Alternate color palette — bold red / black / white (Nike-inspired)
 COLORS = {
-    "quiet":      "#A8D5E2",   # light blue
-    "unweight":   "#F5E642",   # yellow
-    "braking":    "#F08080",   # coral/red
-    "transfer":   "#4472C4",   # blue dot
-    "propulsive": "#90EE90",   # green
-    "flight":     "#C8A2C8",   # lilac
-    "landing":    "#FFB347",   # orange
+    "quiet":      "#FFCCCC",   # blush red
+    "unweight":   "#E8291C",   # Nike red
+    "braking":    "#1A1A1A",   # near black
+    "transfer":   "#E8291C",   # Nike red
+    "propulsive": "#FF6B35",   # orange-red
+    "flight":     "#CCCCCC",   # light gray
+    "landing":    "#8B1A10",   # dark red
 }
 
-LINE_COLOR = "#1a1a2e"
-BW_COLOR   = "#888888"
+LINE_COLOR = "#1A1A1A"
+BW_COLOR   = "#666666"
 
 # ──────────────────────────────────────────────
 # Helper: draw the full curve, shade one phase
@@ -304,9 +304,9 @@ def build_landing_curve():
 T_L, GRF_L, VEL_L, PH_L = build_landing_curve()
 
 LAND_COLORS = {
-    "loading":     "#E8A0A0",  # pinkish red
-    "attenuation": "#F5C89A",  # orange
-    "control":     "#A8D5C8",  # teal
+    "loading":     "#E8291C",  # Nike red
+    "attenuation": "#FF6B35",  # orange-red
+    "control":     "#8B1A10",  # dark red
 }
 
 def plot_landing_phase(ax1, highlight=None, title="", show_all_labels=True):
@@ -335,11 +335,11 @@ def plot_landing_phase(ax1, highlight=None, title="", show_all_labels=True):
 
     # COM velocity on twin axis
     ax2 = ax1.twinx()
-    ax2.plot(T_L, VEL_L, color="#4a4a7a", linewidth=1.8, linestyle="--",
+    ax2.plot(T_L, VEL_L, color="#2D2D2D", linewidth=1.8, linestyle="--",
              label="COM Velocity", zorder=3)
-    ax2.set_ylabel("COM Velocity (m/s)", fontsize=10, color="#4a4a7a")
+    ax2.set_ylabel("COM Velocity (m/s)", fontsize=10, color="#2D2D2D")
     ax2.set_ylim(-3.8, 0.8)
-    ax2.tick_params(labelsize=9, colors="#4a4a7a")
+    ax2.tick_params(labelsize=9, colors="#2D2D2D")
     ax2.axhline(638, alpha=0)  # keep scale
 
     if title:
@@ -355,18 +355,18 @@ ax2 = plot_landing_phase(ax, highlight="loading", title="Phase 1: Loading")
 fig.suptitle("", fontsize=12)
 
 # Peak annotation
-ax.scatter([62], [GRF_L[T_L == 62][0]], color="#cc3333", s=80, zorder=5)
+ax.scatter([62], [GRF_L[T_L == 62][0]], color="#E8291C", s=80, zorder=5)
 ax.annotate("Peak: 2744 N\n(4.3× BW)",
             xy=(62, GRF_L[T_L == 62][0]),
             xytext=(40, 2500),
-            fontsize=9, color="#cc3333", fontweight="bold",
-            arrowprops=dict(arrowstyle="->", color="#cc3333"))
+            fontsize=9, color="#E8291C", fontweight="bold",
+            arrowprops=dict(arrowstyle="->", color="#E8291C"))
 
 # Phase label arrow at top
 ax.annotate("", xy=(62, 3050), xytext=(0, 3050),
-            arrowprops=dict(arrowstyle="->", color="#cc3333", lw=1.5))
-ax.text(31, 3100, "LOADING", color="#cc3333", fontsize=9, ha="center", fontweight="bold")
-ax.text(93, 3100, "ATTENUATION", color="#e8953a", fontsize=9, ha="center", alpha=0.5)
+            arrowprops=dict(arrowstyle="->", color="#E8291C", lw=1.5))
+ax.text(31, 3100, "LOADING", color="#E8291C", fontsize=9, ha="center", fontweight="bold")
+ax.text(93, 3100, "ATTENUATION", color="#FF6B35", fontsize=9, ha="center", alpha=0.5)
 
 # Stats box
 stats = ("— LOADING PHASE —\n"
@@ -378,13 +378,13 @@ stats = ("— LOADING PHASE —\n"
          f"v at contact  3.161 m/s\n"
          f"Jump Height   0.509 m")
 ax.text(135, 2700, stats, fontsize=7.5, family="monospace",
-        bbox=dict(boxstyle="round,pad=0.5", fc="white", ec="#cc3333", lw=1.5),
+        bbox=dict(boxstyle="round,pad=0.5", fc="white", ec="#E8291C", lw=1.5),
         va="top")
 
 legend_items = [
     plt.Line2D([0], [0], color=LINE_COLOR, lw=2, label="Vertical GRF"),
     plt.Line2D([0], [0], color="#999", lw=1.1, ls="--", label="Body Weight (~638 N)"),
-    plt.Line2D([0], [0], color="#4a4a7a", lw=1.8, ls="--", label="COM Velocity"),
+    plt.Line2D([0], [0], color="#2D2D2D", lw=1.8, ls="--", label="COM Velocity"),
 ]
 ax.legend(handles=legend_items, fontsize=8, loc="upper left")
 plt.tight_layout()
@@ -398,19 +398,19 @@ print("loading_phase.png saved")
 fig, ax = plt.subplots(figsize=(9, 5))
 ax2 = plot_landing_phase(ax, highlight="attenuation", title="Phase 2: Attenuation")
 
-ax.scatter([62], [GRF_L[T_L == 62][0]], color="#e8953a", s=80, zorder=5)
+ax.scatter([62], [GRF_L[T_L == 62][0]], color="#FF6B35", s=80, zorder=5)
 min_idx = np.argmin(GRF_L[(T_L >= 62) & (T_L <= 125)]) + np.searchsorted(T_L, 62)
-ax.scatter([T_L[min_idx]], [GRF_L[min_idx]], color="#e8953a", s=80, zorder=5)
+ax.scatter([T_L[min_idx]], [GRF_L[min_idx]], color="#FF6B35", s=80, zorder=5)
 ax.annotate(f"Min: {int(GRF_L[min_idx])} N",
             xy=(T_L[min_idx], GRF_L[min_idx]),
             xytext=(T_L[min_idx] - 20, GRF_L[min_idx] - 250),
-            fontsize=9, color="#e8953a", fontweight="bold",
-            arrowprops=dict(arrowstyle="->", color="#e8953a"))
+            fontsize=9, color="#FF6B35", fontweight="bold",
+            arrowprops=dict(arrowstyle="->", color="#FF6B35"))
 
 ax.annotate("", xy=(125, 3050), xytext=(62, 3050),
-            arrowprops=dict(arrowstyle="<->", color="#e8953a", lw=1.5))
-ax.text(93, 3100, "ATTENUATION", color="#e8953a", fontsize=9, ha="center", fontweight="bold")
-ax.text(31, 3100, "LOADING", color="#cc3333", fontsize=9, ha="center", alpha=0.5)
+            arrowprops=dict(arrowstyle="<->", color="#FF6B35", lw=1.5))
+ax.text(93, 3100, "ATTENUATION", color="#FF6B35", fontsize=9, ha="center", fontweight="bold")
+ax.text(31, 3100, "LOADING", color="#E8291C", fontsize=9, ha="center", alpha=0.5)
 
 stats = ("— ATTENUATION PHASE —\n"
          "Peak GRF → Local Min\n\n"
@@ -421,13 +421,13 @@ stats = ("— ATTENUATION PHASE —\n"
          f"v start       1.88 m/s ↓\n"
          f"v end         0.44 m/s ↓")
 ax.text(135, 2700, stats, fontsize=7.5, family="monospace",
-        bbox=dict(boxstyle="round,pad=0.5", fc="white", ec="#e8953a", lw=1.5),
+        bbox=dict(boxstyle="round,pad=0.5", fc="white", ec="#FF6B35", lw=1.5),
         va="top")
 
 legend_items = [
     plt.Line2D([0], [0], color=LINE_COLOR, lw=2, label="Vertical GRF"),
     plt.Line2D([0], [0], color="#999", lw=1.1, ls="--", label="Body Weight (~638 N)"),
-    plt.Line2D([0], [0], color="#4a4a7a", lw=1.8, ls="--", label="COM Velocity"),
+    plt.Line2D([0], [0], color="#2D2D2D", lw=1.8, ls="--", label="COM Velocity"),
 ]
 ax.legend(handles=legend_items, fontsize=8, loc="upper left")
 plt.tight_layout()
@@ -442,18 +442,18 @@ fig, ax = plt.subplots(figsize=(9, 5))
 ax2 = plot_landing_phase(ax, highlight="control", title="Phase 3: Control")
 
 ctrl_end_idx = np.searchsorted(T_L, 148)
-ax.scatter([T_L[ctrl_end_idx]], [GRF_L[ctrl_end_idx]], color="#2a9d8f", s=80, zorder=5)
+ax.scatter([T_L[ctrl_end_idx]], [GRF_L[ctrl_end_idx]], color="#8B1A10", s=80, zorder=5)
 ax.annotate("v = 0 m/s\n(COM stops)",
             xy=(T_L[ctrl_end_idx], GRF_L[ctrl_end_idx]),
             xytext=(T_L[ctrl_end_idx] - 30, GRF_L[ctrl_end_idx] + 400),
-            fontsize=8.5, color="#2a9d8f", fontweight="bold",
-            arrowprops=dict(arrowstyle="->", color="#2a9d8f"))
+            fontsize=8.5, color="#8B1A10", fontweight="bold",
+            arrowprops=dict(arrowstyle="->", color="#8B1A10"))
 
 ax.annotate("", xy=(148, 3050), xytext=(125, 3050),
-            arrowprops=dict(arrowstyle="<->", color="#2a9d8f", lw=1.5))
-ax.text(136, 3100, "CONTROL", color="#2a9d8f", fontsize=9, ha="center", fontweight="bold")
-ax.text(31, 3100, "LOADING", color="#cc3333", fontsize=9, ha="center", alpha=0.4)
-ax.text(93, 3100, "ATTENUATION", color="#e8953a", fontsize=9, ha="center", alpha=0.4)
+            arrowprops=dict(arrowstyle="<->", color="#8B1A10", lw=1.5))
+ax.text(136, 3100, "CONTROL", color="#8B1A10", fontsize=9, ha="center", fontweight="bold")
+ax.text(31, 3100, "LOADING", color="#E8291C", fontsize=9, ha="center", alpha=0.4)
+ax.text(93, 3100, "ATTENUATION", color="#FF6B35", fontsize=9, ha="center", alpha=0.4)
 
 stats = ("— CONTROL PHASE —\n"
          "Local Min → v = 0\n\n"
@@ -465,13 +465,13 @@ stats = ("— CONTROL PHASE —\n"
          f"LPI           3.44 m/s\n"
          f"mRSI          0.876")
 ax.text(135, 2700, stats, fontsize=7.5, family="monospace",
-        bbox=dict(boxstyle="round,pad=0.5", fc="white", ec="#2a9d8f", lw=1.5),
+        bbox=dict(boxstyle="round,pad=0.5", fc="white", ec="#8B1A10", lw=1.5),
         va="top")
 
 legend_items = [
     plt.Line2D([0], [0], color=LINE_COLOR, lw=2, label="Vertical GRF"),
     plt.Line2D([0], [0], color="#999", lw=1.1, ls="--", label="Body Weight (~638 N)"),
-    plt.Line2D([0], [0], color="#4a4a7a", lw=1.8, ls="--", label="COM Velocity"),
+    plt.Line2D([0], [0], color="#2D2D2D", lw=1.8, ls="--", label="COM Velocity"),
 ]
 ax.legend(handles=legend_items, fontsize=8, loc="upper left")
 plt.tight_layout()
@@ -487,26 +487,26 @@ ax_main = fig.add_axes([0.08, 0.42, 0.88, 0.50])
 ax2 = plot_landing_phase(ax_main, highlight=None, title="CMJ Landing — Full Phase Summary")
 
 # Annotations
-ax_main.scatter([62], [GRF_L[T_L == 62][0]], color="#cc3333", s=70, zorder=5)
+ax_main.scatter([62], [GRF_L[T_L == 62][0]], color="#E8291C", s=70, zorder=5)
 ax_main.annotate("Peak\n2744 N (4.3×BW)", xy=(62, GRF_L[T_L == 62][0]),
-                 xytext=(38, 2550), fontsize=8, color="#cc3333", fontweight="bold",
-                 arrowprops=dict(arrowstyle="->", color="#cc3333"))
-ax_main.scatter([T_L[min_idx]], [GRF_L[min_idx]], color="#e8953a", s=70, zorder=5)
+                 xytext=(38, 2550), fontsize=8, color="#E8291C", fontweight="bold",
+                 arrowprops=dict(arrowstyle="->", color="#E8291C"))
+ax_main.scatter([T_L[min_idx]], [GRF_L[min_idx]], color="#FF6B35", s=70, zorder=5)
 ax_main.annotate("Min GRF\n875 N", xy=(T_L[min_idx], GRF_L[min_idx]),
                  xytext=(T_L[min_idx] + 8, GRF_L[min_idx] - 220),
-                 fontsize=8, color="#e8953a", fontweight="bold",
-                 arrowprops=dict(arrowstyle="->", color="#e8953a"))
-ax_main.scatter([T_L[ctrl_end_idx]], [GRF_L[ctrl_end_idx]], color="#2a9d8f", s=70, zorder=5)
+                 fontsize=8, color="#FF6B35", fontweight="bold",
+                 arrowprops=dict(arrowstyle="->", color="#FF6B35"))
+ax_main.scatter([T_L[ctrl_end_idx]], [GRF_L[ctrl_end_idx]], color="#8B1A10", s=70, zorder=5)
 ax_main.annotate("v = 0 m/s\n(COM stops)", xy=(T_L[ctrl_end_idx], GRF_L[ctrl_end_idx]),
                  xytext=(T_L[ctrl_end_idx] - 32, GRF_L[ctrl_end_idx] + 450),
-                 fontsize=8, color="#2a9d8f", fontweight="bold",
-                 arrowprops=dict(arrowstyle="->", color="#2a9d8f"))
+                 fontsize=8, color="#8B1A10", fontweight="bold",
+                 arrowprops=dict(arrowstyle="->", color="#8B1A10"))
 
 # Phase arrows at top
 for (label, s, e, col) in [
-    ("LOADING",     0,   62,  "#cc3333"),
-    ("ATTENUATION", 62, 125,  "#e8953a"),
-    ("CONTROL",    125, 148,  "#2a9d8f"),
+    ("LOADING",     0,   62,  "#E8291C"),
+    ("ATTENUATION", 62, 125,  "#FF6B35"),
+    ("CONTROL",    125, 148,  "#8B1A10"),
 ]:
     mid = (s + e) / 2
     ax_main.annotate("", xy=(e, 3050), xytext=(s, 3050),
@@ -516,21 +516,21 @@ for (label, s, e, col) in [
 legend_items = [
     plt.Line2D([0], [0], color=LINE_COLOR, lw=2, label="Vertical GRF"),
     plt.Line2D([0], [0], color="#999", lw=1.1, ls="--", label="Body Weight (~638 N)"),
-    plt.Line2D([0], [0], color="#4a4a7a", lw=1.8, ls="--", label="COM Velocity"),
+    plt.Line2D([0], [0], color="#2D2D2D", lw=1.8, ls="--", label="COM Velocity"),
 ]
 ax_main.legend(handles=legend_items, fontsize=8, loc="upper left")
 
 # ─ Summary table ─
 table_data = {
-    "Phase 1: Loading":     {"color": "#cc3333", "sub": "Contact → Peak GRF",
+    "Phase 1: Loading":     {"color": "#E8291C", "sub": "Contact → Peak GRF",
                               "rows": [("Peak GRF:", "2744 N"), ("Peak Force:", "4.3× BW"),
                                        ("Loading Time:", "62.9 ms"), ("Loading Rate:", "43.6 kN/s"),
                                        ("v at Contact:", "3.161 m/s"), ("Jump Height:", "0.509 m")]},
-    "Phase 2: Attenuation": {"color": "#e8953a", "sub": "Peak GRF → Local Min",
+    "Phase 2: Attenuation": {"color": "#FF6B35", "sub": "Peak GRF → Local Min",
                               "rows": [("Atten Time:", "61.6 ms"), ("Avg Force:", "1688 N"),
                                        ("Force Atten:", "30.3 kN/s"), ("Min GRF:", "875 N"),
                                        ("v start:", "1.88 m/s ↓"), ("v end:", "0.44 m/s ↓")]},
-    "Phase 3: Control":     {"color": "#2a9d8f", "sub": "Local Min → v = 0",
+    "Phase 3: Control":     {"color": "#8B1A10", "sub": "Local Min → v = 0",
                               "rows": [("Control Time:", "23.5 ms"), ("Total Land T:", "148.0 ms"),
                                        ("Avg Force:", "941 N"), ("Amort Force:", "1025 N"),
                                        ("LPI:", "3.44 m/s"), ("mRSI:", "0.876")]},
