@@ -97,3 +97,44 @@ The CMJ landing curve is subdivided into three distinct phases based on COM velo
 ---
 
 > **Reference:** McMahon, J. J., Suchomel, T. J., Lake, J. P., & Comfort, P. (2018). Understanding the Key Phases of the Countermovement Jump Force-Time Curve. *Strength & Conditioning Journal, 40*(4), 96–106. https://doi.org/10.1519/ssc.0000000000000375
+
+---
+
+## Dynamic Rebound Index (DRI)
+
+Apply the brakes on the **Dynamic Rebound Index (DRI)** for interpreting rebound performance.
+
+Accounting for drop height and a challenge to **Reactive Strength Index (RSI)**, the proposed formula for DRI is:
+
+> **DRI = (Drop Height + Rebound Jump Height) / (9.81 × Contact Time²)**
+
+As with any ratio metric, understanding the component parts and how they contribute to a movement outcome is the critical consideration that often gets overlooked when trying to quantify performance in one metric.
+
+You can apply the same logic when interpreting **countermovement rebound jump** performance (CMJ + Rebound Jump) if you're not doing drop jumps in your practice.
+
+---
+
+### Example Data
+
+| Metric | Athlete A | Athlete B |
+|---|---|---|
+| CMJ Height | 0.40 m | 0.30 m |
+| Rebound Jump Height | 0.35 m | 0.28 m |
+| Contact Time | 0.26 s | 0.20 s |
+| **DRI** | **1.13** | **1.48** |
+
+Despite Athlete A displacing their centre of mass significantly higher in both **ballistic** and **reactive** tasks, Athlete B attains a higher Dynamic Rebound Index.
+
+This occurs because DRI is **dominated by rebound contact time**, which is squared in the denominator of the equation. As a result, relatively small differences in contact time exert a much larger influence on the final score than meaningful differences in jump height.
+
+In isolation, DRI does not inform **how** the trial was performed, nor does it clearly guide post-test training decisions.
+
+---
+
+### Interpretation Note
+
+This aligns with Jason Pedley's views on RSI — with extra ingredients to the recipe:
+
+> *"If we bake a cake, but it doesn't taste right, we need to know the recipe to see what could or should be changed."*
+
+Always interrogate the component parts (drop height, rebound jump height, contact time) alongside the composite score before making training decisions.
