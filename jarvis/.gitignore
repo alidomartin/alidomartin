@@ -5,3 +5,13 @@
 *.swp
 .env
 .env.*
+!cli/.env.example
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Jarvis CLI runtime artifacts (personal, do not commit)
+06-MEMORY/audit.log
+06-MEMORY/conversations/*.md
+!06-MEMORY/conversations/.gitkeep
