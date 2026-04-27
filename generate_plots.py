@@ -1049,3 +1049,267 @@ with plt.rc_context({"figure.facecolor": _DB, "axes.facecolor": _DB,
                 bbox_inches="tight", facecolor=_DB)
     plt.close()
     print("team_readiness_dashboard.png saved")
+
+
+# ══════════════════════════════════════════════
+# FORCE-VELOCITY PROFILE — VBT ZONE PRESCRIBER
+# Turner et al. 2020 Part I & II; Weakley et al. 2020
+# Pareja-Blanco et al. 2016 (velocity loss thresholds)
+# ══════════════════════════════════════════════
+
+_FV_BG  = "#2C3E50"
+_FV_TXT = "#FFFFFF"
+_FV_DIM = "#95A5A6"
+
+# 5 zones sourced from Turner et al. 2020, Table 2 & Figure 3 (squat velocity bands)
+_FV_ZONES = [
+    {
+        "name": "ABSOLUTE\nSTRENGTH", "v_lo": 0.00, "v_hi": 0.30,
+        "pct_hi": 100, "pct_lo": 85,
+        "col": "#E74C3C", "bg": "#2D0A08",
+        "goal": "Maximal force · Neural recruitment",
+        "vl": "≤ 20%", "vl_col": "#E74C3C",
+        "exercises": "Heavy Squat · Deadlift · Pin Press",
+        "cmj_label": "< 7,000 N/s",
+    },
+    {
+        "name": "STRENGTH", "v_lo": 0.30, "v_hi": 0.60,
+        "pct_hi": 85, "pct_lo": 65,
+        "col": "#F39C12", "bg": "#2D1500",
+        "goal": "Force capacity · Hypertrophy",
+        "vl": "20–30%", "vl_col": "#F39C12",
+        "exercises": "Squat · Trap Bar DL · Bench Press",
+        "cmj_label": "7,000–10,000 N/s",
+    },
+    {
+        "name": "STRENGTH-\nSPEED", "v_lo": 0.60, "v_hi": 1.00,
+        "pct_hi": 65, "pct_lo": 45,
+        "col": "#77DD77", "bg": "#0D2D1A",
+        "goal": "Peak power output ★",
+        "vl": "20%", "vl_col": "#77DD77",
+        "exercises": "Trap Bar Jump · JS 40–75% BM\nPower Clean (> 1.0 m/s)",
+        "cmj_label": "10,000–13,000 N/s",
+    },
+    {
+        "name": "SPEED-\nSTRENGTH", "v_lo": 1.00, "v_hi": 1.50,
+        "pct_hi": 45, "pct_lo": 20,
+        "col": "#3498DB", "bg": "#0D1F35",
+        "goal": "Velocity expression · RFD",
+        "vl": "15–20%", "vl_col": "#3498DB",
+        "exercises": "Power Snatch · JS 20% BM\nMed Ball Throw (> 1.5 m/s)",
+        "cmj_label": "13,000–16,000 N/s",
+    },
+    {
+        "name": "SPEED /\nBALLISTIC", "v_lo": 1.50, "v_hi": 2.20,
+        "pct_hi": 20, "pct_lo": 0,
+        "col": "#9B59B6", "bg": "#2D1244",
+        "goal": "Max velocity · SSC utilisation",
+        "vl": "10–15%", "vl_col": "#9B59B6",
+        "exercises": "CMJ · Drop Jump · Sprint Starts\nJS BW (> 2.0 m/s) · Plyometrics",
+        "cmj_label": "> 16,000 N/s",
+    },
+]
+
+# NU Men athlete zone mapping via Apr-17 BrkRFD
+_ATH_FV = [
+    {"short": "ANCHETA",    "brfd": 10573, "zone": 2},
+    {"short": "DISQUITADO", "brfd": 9827,  "zone": 1},
+    {"short": "ORDIALES",   "brfd": 9007,  "zone": 1},
+    {"short": "BUDDIN",     "brfd": 11389, "zone": 2},
+    {"short": "MUKABA",     "brfd": 14566, "zone": 3},
+    {"short": "TAGUIBOLOS", "brfd": 6964,  "zone": 1},
+]
+
+# F-V curve (squat, linear approx): %1RM = 100·(1−(v−0.30)/1.90)  v∈[0.30, 2.20]
+_v_fv   = np.linspace(0.30, 2.20, 300)
+_f_fv   = 100 * (1 - (_v_fv - 0.30) / 1.90)
+# Power: P ∝ F·v → peak at v ≈ 1.10 m/s
+_p_fv   = _v_fv * _f_fv
+_p_norm = _p_fv / _p_fv.max() * 100
+_v_peak = _v_fv[np.argmax(_p_fv)]   # ≈ 1.10 m/s
+
+with plt.rc_context({
+    "figure.facecolor": _FV_BG, "axes.facecolor": _FV_BG,
+    "font.family": "DejaVu Sans",
+    "axes.spines.top": False, "axes.spines.right": False,
+}):
+    _fvfig = plt.figure(figsize=(18, 10), facecolor=_FV_BG)
+
+    # ── Header ──────────────────────────────────────────────
+    _fvfig.text(0.03, 0.975, "FORCE-VELOCITY PROFILE",
+                fontsize=18, fontweight="bold", color=_FV_TXT, va="top")
+    _fvfig.text(0.03, 0.940,
+                "Velocity-Based Training — Zone Prescriber  ·  "
+                "Turner et al. 2020  ·  Weakley et al. 2020  ·  Pareja-Blanco et al. 2016",
+                fontsize=8.5, color=_FV_DIM, va="top")
+    _fvfig.text(0.97, 0.975, "N1 PERFORMANCE LAB PH",
+                fontsize=8.5, color=_FV_DIM, va="top", ha="right")
+
+    # ── LEFT PANEL: F-V curve ───────────────────────────────
+    _axfv = _fvfig.add_axes([0.04, 0.13, 0.54, 0.78], facecolor=_FV_BG)
+
+    # Zone background fills
+    for _z in _FV_ZONES:
+        _axfv.axvspan(_z["v_lo"], _z["v_hi"], facecolor=_z["bg"], alpha=1.0, zorder=1)
+        _axfv.axvline(_z["v_hi"], color=_FV_DIM, lw=0.5, alpha=0.35, zorder=2)
+
+    # Zone name labels (top of chart)
+    for _z in _FV_ZONES:
+        _vmid = (_z["v_lo"] + _z["v_hi"]) / 2
+        _axfv.text(_vmid, 101, _z["name"], ha="center", va="bottom",
+                   fontsize=8, fontweight="bold", color=_z["col"], zorder=4,
+                   multialignment="center")
+
+    # Isometric stub (v < 0.30, 100% 1RM line)
+    _axfv.plot([0, 0.30], [100, 100], color=_FV_TXT, lw=2.0, ls="--", alpha=0.45, zorder=4)
+
+    # F-V curve
+    _axfv.plot(_v_fv, _f_fv, color=_FV_TXT, lw=2.5, zorder=5, label="F-V (Squat, linear approx)")
+
+    # Power curve on twin axis
+    _ax2 = _axfv.twinx()
+    _ax2.set_facecolor(_FV_BG)
+    _ax2.plot(_v_fv, _p_norm, color="#F39C12", lw=1.8, ls="--", alpha=0.75, zorder=3)
+    _ax2.set_ylabel("Relative Power Output (%)", color="#F39C12", fontsize=8)
+    _ax2.tick_params(axis="y", colors="#F39C12", labelsize=7)
+    _ax2.set_ylim(0, 120)
+    for _sp in _ax2.spines.values():
+        _sp.set_color(_FV_DIM)
+
+    # Peak power marker
+    _pct_at_peak = 100 * (1 - (_v_peak - 0.30) / 1.90)
+    _axfv.plot(_v_peak, _pct_at_peak, "o", color="#F39C12", ms=9, zorder=6)
+    _axfv.annotate(f"Peak Power\n≈ {_v_peak:.2f} m/s",
+                   xy=(_v_peak, _pct_at_peak),
+                   xytext=(_v_peak + 0.10, _pct_at_peak + 10),
+                   fontsize=7.5, color="#F39C12", zorder=6,
+                   arrowprops=dict(arrowstyle="-", color="#F39C12", lw=0.8))
+
+    # V1RM marker (squat)
+    _axfv.axvline(0.30, color="#E74C3C", lw=1.2, ls=":", alpha=0.8, zorder=3)
+    _axfv.text(0.32, 6, "V1RM Squat\n0.30 m/s", fontsize=6.5, color="#E74C3C", va="bottom")
+
+    # Exercise example annotations per zone (placed inside each zone)
+    _ex_annots = [
+        (0.15, 30, "Squat\nDeadlift\n(near 1RM)"),
+        (0.45, 30, "Squat 75–85%\nBench Press\nTrap Bar DL"),
+        (0.80, 28, "Trap Bar Jump\nJump Squat 40–75% BM\nPower Clean"),
+        (1.25, 30, "Power Snatch\nJump Squat 20% BM\nMed Ball Throw"),
+        (1.85, 28, "CMJ · Drop Jump\nSprint Starts\nPlyometrics"),
+    ]
+    for _ex_v, _ex_pct, _ex_txt in _ex_annots:
+        _zi = next(i for i, z in enumerate(_FV_ZONES) if z["v_lo"] <= _ex_v < z["v_hi"])
+        _axfv.text(_ex_v, _ex_pct, _ex_txt, ha="center", va="top", fontsize=6.5,
+                   color=_FV_ZONES[_zi]["col"], alpha=0.85, zorder=4,
+                   multialignment="center",
+                   bbox=dict(fc=_FV_ZONES[_zi]["bg"], ec="none", pad=2, alpha=0.7))
+
+    # Axis styling
+    _axfv.set_xlim(0, 2.20)
+    _axfv.set_ylim(0, 110)
+    _axfv.set_xlabel("Mean Concentric Velocity (m/s)", color=_FV_TXT, fontsize=9, labelpad=6)
+    _axfv.set_ylabel("Relative Load (% 1RM)", color=_FV_TXT, fontsize=9, labelpad=6)
+    _axfv.tick_params(colors=_FV_TXT, labelsize=8)
+    for _sp in _axfv.spines.values():
+        _sp.set_color(_FV_DIM)
+    _axfv.set_xticks([0.0, 0.30, 0.60, 1.00, 1.50, 2.00])
+    _axfv.set_yticks([0, 20, 40, 60, 80, 100])
+
+    # Legend
+    _axfv.plot([], [], color=_FV_TXT, lw=2.5, label="Force-Velocity (Squat)")
+    _axfv.plot([], [], color="#F39C12", lw=1.8, ls="--", label="Power (F × v)")
+    _axfv.legend(loc="upper right", fontsize=7.5, framealpha=0.25,
+                 facecolor=_FV_BG, edgecolor=_FV_DIM, labelcolor=_FV_TXT)
+
+    # ── RIGHT PANEL: Zone prescription cards ────────────────
+    _rx0    = 0.615
+    _card_h = 0.148
+    _card_w = 0.355
+
+    for _zi, _z in enumerate(_FV_ZONES):
+        _ry0 = 0.895 - _zi * (_card_h + 0.010)
+
+        # Card background
+        _card_bg = mpatches.FancyBboxPatch(
+            (_rx0, _ry0 - _card_h), _card_w, _card_h,
+            boxstyle="round,pad=0.006",
+            facecolor=_z["bg"], edgecolor=_z["col"], linewidth=1.2,
+            transform=_fvfig.transFigure, clip_on=False)
+        _fvfig.add_artist(_card_bg)
+
+        # Left accent bar
+        _acc = mpatches.Rectangle(
+            (_rx0, _ry0 - _card_h + 0.006), 0.006, _card_h - 0.012,
+            facecolor=_z["col"],
+            transform=_fvfig.transFigure, clip_on=False)
+        _fvfig.add_artist(_acc)
+
+        _cy = _ry0 - _card_h / 2   # vertical center of card
+
+        # Zone name
+        _fvfig.text(_rx0 + 0.011, _cy + 0.028,
+                    _z["name"].replace("\n", " "),
+                    fontsize=9, fontweight="bold", color=_z["col"], va="center")
+        # Goal
+        _fvfig.text(_rx0 + 0.011, _cy + 0.006, _z["goal"],
+                    fontsize=7.5, color=_FV_TXT, va="center")
+        # Velocity range
+        _fvfig.text(_rx0 + 0.011, _cy - 0.015,
+                    f"Velocity: {_z['v_lo']:.2f} – {_z['v_hi']:.2f} m/s  ·  "
+                    f"Load: {_z['pct_lo']}–{_z['pct_hi']}% 1RM",
+                    fontsize=6.8, color=_FV_DIM, va="center")
+        # VL threshold
+        _fvfig.text(_rx0 + 0.011, _cy - 0.033,
+                    f"VL: {_z['vl']}",
+                    fontsize=7, color=_z["vl_col"], va="center", fontweight="bold")
+        # CMJ BrkRFD connection
+        _fvfig.text(_rx0 + 0.180, _cy - 0.020,
+                    f"CMJ BrkRFD\n{_z['cmj_label']}",
+                    fontsize=6.5, color=_FV_DIM, va="center", ha="center",
+                    multialignment="center")
+
+        # NU Men athlete dots for this zone
+        _zone_athletes = [a for a in _ATH_FV if a["zone"] == _zi]
+        for _ai, _ath in enumerate(_zone_athletes):
+            _dot_x = _rx0 + 0.255 + _ai * 0.030
+            _dot_y = _cy
+            _fvfig.text(_dot_x, _dot_y + 0.012, "●",
+                        fontsize=7, color=_z["col"], ha="center", va="center",
+                        transform=_fvfig.transFigure)
+            _fvfig.text(_dot_x, _dot_y - 0.006, _ath["short"],
+                        fontsize=5.5, color=_FV_DIM, ha="center", va="center",
+                        transform=_fvfig.transFigure)
+
+    # ── VL consequence strip ─────────────────────────────────
+    _fvfig.text(_rx0, 0.115,
+                "VELOCITY LOSS THRESHOLD OUTCOMES   (Pareja-Blanco et al. 2016, Squat, 8 wk)",
+                fontsize=7.5, color=_FV_DIM, fontweight="bold", va="center")
+
+    _vl_data = [
+        ("VL 20%", "#77DD77",
+         "+9.5% CMJ  ·  Preserves MHC-IIX fibres  ·  40% fewer reps  ·  Less fatigue"),
+        ("VL 40%", "#F39C12",
+         "+3.5% CMJ  ·  Greater hypertrophy (CSA)  ·  Higher metabolic stress"),
+    ]
+    for _vli, (_vl_lbl, _vl_col, _vl_txt) in enumerate(_vl_data):
+        _vy = 0.088 - _vli * 0.030
+        _fvfig.text(_rx0, _vy, _vl_lbl,
+                    fontsize=8, fontweight="bold", color=_vl_col, va="center")
+        _fvfig.text(_rx0 + 0.055, _vy, _vl_txt,
+                    fontsize=7.5, color=_FV_TXT, va="center")
+
+    # ── Footer ──────────────────────────────────────────────
+    _fvfig.text(0.03, 0.035,
+                "F-V curve: linear approximation from literature (Sánchez-Medina & González-Badillo 2010; Turner et al. 2020)  ·  "
+                "Velocity zones: Turner et al. 2020, Table 2 & Fig. 3  ·  "
+                "V1RM squat ≈ 0.30 m/s (Weakley et al. 2020)",
+                fontsize=6.5, color=_FV_DIM, va="bottom")
+    _fvfig.text(0.03, 0.018,
+                "VL = Velocity Loss threshold per set  ·  BrkRFD = CMJ Braking Rate of Force Development (Hawkin Dynamics)  ·  "
+                "Athlete zones derived from Apr-17 session data",
+                fontsize=6.5, color=_FV_DIM, va="bottom")
+
+    plt.savefig("images/fv_profile.png", dpi=150,
+                bbox_inches="tight", facecolor=_FV_BG)
+    plt.close()
+    print("fv_profile.png saved")

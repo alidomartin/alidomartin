@@ -100,6 +100,26 @@ The CMJ landing curve is subdivided into three distinct phases based on COM velo
 
 ---
 
+## Force-Velocity Profile — VBT Zone Prescriber
+
+The force-velocity (F-V) curve maps the inverse relationship between external load and movement velocity. Understanding where an athlete operates on this curve — and where they are *deficient* — drives exercise selection and velocity-based training (VBT) prescription.
+
+| Zone | Velocity Range | Load | Training Goal |
+|---|---|---|---|
+| **Absolute Strength** | 0.00–0.30 m/s | > 85% 1RM | Max force · Neural drive |
+| **Strength** | 0.30–0.60 m/s | 65–85% 1RM | Force capacity · Hypertrophy |
+| **Strength-Speed** ★ | 0.60–1.00 m/s | 45–65% 1RM | **Peak power output** |
+| **Speed-Strength** | 1.00–1.50 m/s | 20–45% 1RM | Velocity expression · RFD |
+| **Speed / Ballistic** | 1.50–2.20 m/s | < 20% 1RM | Max velocity · SSC |
+
+![Force-Velocity Profile](images/fv_profile.png)
+
+> *Velocity Loss (VL) threshold matters: VL20% → +9.5% CMJ, preserves MHC-IIX fibres. VL40% → greater hypertrophy, +3.5% CMJ (Pareja-Blanco et al. 2016). Athlete zone placement via CMJ Braking RFD (Hawkin Dynamics).*
+
+**References:** Turner et al. (2020) Developing Powerful Athletes Part I & II · Weakley et al. (2020) VBT Theory to Application · Pareja-Blanco et al. (2016) Scand J Med Sci Sports
+
+---
+
 ## Individualized Workout Prescription
 
 The CMJ force-time curve is more than a performance metric — it is a **readiness tool**. Each athlete's neuromuscular profile drives a different training prescription. Same assessment system, entirely different outputs.
