@@ -572,14 +572,14 @@ WORKOUT_TYPES = [
     "Hypertrophy", "Light", "Very Light", "Base",
 ]
 PRESC_COLORS = [
-    "#C0392B",  # Speed
-    "#E8541D",  # Power
-    "#7B3020",  # Very Heavy
-    "#A84020",  # Heavy
-    "#C49A6C",  # Hypertrophy
-    "#C8B08A",  # Light
-    "#DECCAA",  # Very Light
-    "#6A6A5A",  # Base
+    "#E74C3C",  # Speed      — crimson
+    "#E67E22",  # Power      — orange
+    "#9B59B6",  # Very Heavy — violet
+    "#3498DB",  # Heavy      — cobalt
+    "#F39C12",  # Hypertrophy — amber
+    "#77DD77",  # Light      — eucalyptus
+    "#1ABC9C",  # Very Light — teal
+    "#7F8C8D",  # Base       — slate-grey
 ]
 ATHLETES_PRESC = [
     {"name": "Athlete 1", "rsi": 0.89, "jump_m": 0.52, "asym": 3,  "brfd": 4820,
@@ -594,9 +594,9 @@ ATHLETES_PRESC = [
      "pct": [10, 22, 20, 18, 16, 9, 3, 2]},
 ]
 
-_P_BG  = "#1C1B1A"
-_P_TXT = "#F0EDE8"
-_P_DIM = "#888078"
+_P_BG  = "#2C3E50"
+_P_TXT = "#FFFFFF"
+_P_DIM = "#95A5A6"
 _prng  = np.random.default_rng(7)
 
 with plt.rc_context({
@@ -678,7 +678,7 @@ with plt.rc_context({
             if _p >= 8:
                 _ax_b.text(_xp + _p / 2, 0.50, f"{_p:.0f}%",
                            ha="center", va="center", fontsize=9,
-                           color=_P_TXT if _p >= 15 else "#1C1B1A",
+                           color=_P_TXT if _p >= 15 else "#2C3E50",
                            fontweight="bold", zorder=3)
             _xp += _p
 
@@ -700,15 +700,15 @@ with plt.rc_context({
 # End-to-end CMJ pipeline: plates → prescription
 # ══════════════════════════════════════════════
 
-_A_BG   = "#0D0D0D"
-_A_TXT  = "#F0EDE8"
-_A_DIM  = "#888078"
-_A_ARR  = "#666666"
-_A_DATA = ("#1A3D1A", "#3ABA5A")
-_A_FLOW = ("#0D1F44", "#3A7FD0")
-_A_REG  = ("#2D1244", "#9050E0")
-_A_UI   = ("#0D3030", "#30C0C0")
-_A_CI   = ("#2A2000", "#C0A000")
+_A_BG   = "#2C3E50"
+_A_TXT  = "#FFFFFF"
+_A_DIM  = "#95A5A6"
+_A_ARR  = "#BDC3C7"
+_A_DATA = ("#1A3A2A", "#77DD77")   # eucalyptus — data / storage
+_A_FLOW = ("#0D1F44", "#3498DB")   # cobalt     — Prefect flows
+_A_REG  = ("#2D1244", "#9B59B6")   # violet     — model registry
+_A_UI   = ("#0D2A2A", "#1ABC9C")   # teal       — dashboard / UI
+_A_CI   = ("#2A1800", "#F39C12")   # amber      — CI/CD
 
 
 def _abx(ax, x, y, w, h, title, sub="", fc="#0D1F44", ec="#3A7FD0", tfs=9):
@@ -879,16 +879,16 @@ _NU_MEN = [
 ]
 
 _CAT = {
-    "ELITE":       {"col": "#2ECC71", "fc": "#0D2D1A", "ec": "#2ECC71",
-                    "rx": "Speed · Power · Very Heavy"},
-    "EXPLOSIVE":   {"col": "#3A9FE0", "fc": "#0D1F35", "ec": "#3A9FE0",
-                    "rx": "Power · Heavy · Short GCT"},
-    "BALANCED":    {"col": "#F0A030", "fc": "#2D1E08", "ec": "#F0A030",
-                    "rx": "Heavy · Hypertrophy · Force"},
-    "DEVELOPMENTAL":{"col":"#E0C040", "fc": "#2D2600", "ec": "#E0C040",
-                    "rx": "Hypertrophy · Strength Build"},
-    "RED FLAG":    {"col": "#E74C3C", "fc": "#2D0A08", "ec": "#E74C3C",
-                    "rx": "Light · Recovery · RTP Protocol"},
+    "ELITE":        {"col": "#77DD77", "fc": "#0D2D1A", "ec": "#77DD77",
+                     "rx": "Speed · Power · Very Heavy"},
+    "EXPLOSIVE":    {"col": "#3498DB", "fc": "#0D1F35", "ec": "#3498DB",
+                     "rx": "Power · Heavy · Short GCT"},
+    "BALANCED":     {"col": "#F39C12", "fc": "#2D1E08", "ec": "#F39C12",
+                     "rx": "Heavy · Hypertrophy · Force"},
+    "DEVELOPMENTAL":{"col": "#9B59B6", "fc": "#2D1244", "ec": "#9B59B6",
+                     "rx": "Hypertrophy · Strength Build"},
+    "RED FLAG":     {"col": "#E74C3C", "fc": "#2D0A08", "ec": "#E74C3C",
+                     "rx": "Light · Recovery · RTP Protocol"},
 }
 
 def _get_cat(rsi, asym):
@@ -901,13 +901,13 @@ def _get_cat(rsi, asym):
 
 def _trend(v_now, v_prev, higher_better=True):
     pct = (v_now - v_prev) / abs(v_prev) * 100
-    if abs(pct) < 1.5: return "→", "#888888", f"{v_now:.3f}"
+    if abs(pct) < 1.5: return "→", "#95A5A6", f"{v_now:.3f}"
     improved = pct > 0 if higher_better else pct < 0
-    return ("↑", "#2ECC71", f"{v_now:.3f}") if improved else ("↓", "#E74C3C", f"{v_now:.3f}")
+    return ("↑", "#77DD77", f"{v_now:.3f}") if improved else ("↓", "#E74C3C", f"{v_now:.3f}")
 
-_DB = "#181716"
-_TW = "#F0EDE8"
-_DM = "#808070"
+_DB = "#2C3E50"
+_TW = "#FFFFFF"
+_DM = "#95A5A6"
 
 with plt.rc_context({"figure.facecolor": _DB, "axes.facecolor": _DB,
                      "font.family": "DejaVu Sans",
@@ -1002,7 +1002,7 @@ with plt.rc_context({"figure.facecolor": _DB, "axes.facecolor": _DB,
                    fontsize=7.5, color=_arc, va="center")
 
         # Asymmetry
-        _ac = "#E74C3C" if _a17["asym"] >= 10 else "#F0A030" if _a17["asym"] >= 7 else _TW
+        _ac = "#E74C3C" if _a17["asym"] >= 10 else "#F39C12" if _a17["asym"] >= 7 else _TW
         _flag = "  ⚑" if _a17["asym"] >= 10 else ""
         _dfig.text(0.680, _y_c + 0.018, f"{_a17['asym']:.1f}%{_flag}",
                    fontsize=12, fontweight="bold", color=_ac, va="center")
