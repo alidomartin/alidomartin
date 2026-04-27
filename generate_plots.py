@@ -849,3 +849,203 @@ with plt.rc_context({
 
 
 print("\nAll images generated successfully!")
+
+
+# ══════════════════════════════════════════════
+# NU VOLLEYBALL — TEAM READINESS DASHBOARD
+# Real Hawkin Dynamics CMJ data (Apr 3 vs Apr 17)
+# Decision tree: Pentheny / Bishop et al. / Cabarkapa 2023
+# ══════════════════════════════════════════════
+
+_NU_MEN = [
+    {"name": "Greg Ancheta",       "pos": "Setter",         "short": "ANCHETA",
+     "apr3":  {"rsi": 0.999, "jh": 0.572, "mrsi": 0.832, "brfd": 9773,  "asym": 2.59},
+     "apr17": {"rsi": 0.949, "jh": 0.568, "mrsi": 0.778, "brfd": 10573, "asym": 1.20}},
+    {"name": "Jade Disquitado",    "pos": "Outside Hitter", "short": "DISQUITADO",
+     "apr3":  {"rsi": 1.109, "jh": 0.589, "mrsi": 0.918, "brfd": 14635, "asym": 0.95},
+     "apr17": {"rsi": 0.952, "jh": 0.538, "mrsi": 0.751, "brfd": 9827,  "asym": 1.79}},
+    {"name": "Leo Ordiales",       "pos": "Utility",        "short": "ORDIALES",
+     "apr3":  {"rsi": 1.058, "jh": 0.555, "mrsi": 0.833, "brfd": 11644, "asym": 6.08},
+     "apr17": {"rsi": 0.908, "jh": 0.526, "mrsi": 0.696, "brfd": 9007,  "asym": 8.95}},
+    {"name": "Michaelo Buddin",    "pos": "Outside Hitter", "short": "BUDDIN",
+     "apr3":  {"rsi": 1.024, "jh": 0.548, "mrsi": 0.795, "brfd": 12767, "asym": 3.25},
+     "apr17": {"rsi": 0.911, "jh": 0.538, "mrsi": 0.705, "brfd": 11389, "asym": 3.34}},
+    {"name": "Obed Mukaba",        "pos": "Middle Blocker", "short": "MUKABA",
+     "apr3":  {"rsi": 0.981, "jh": 0.531, "mrsi": 0.791, "brfd": 15962, "asym": 2.65},
+     "apr17": {"rsi": 0.933, "jh": 0.517, "mrsi": 0.734, "brfd": 14566, "asym": 12.38}},
+    {"name": "Rwenzmel Taguibolos","pos": "Middle Blocker", "short": "TAGUIBOLOS",
+     "apr3":  {"rsi": 0.955, "jh": 0.522, "mrsi": 0.743, "brfd": 11051, "asym": 2.76},
+     "apr17": {"rsi": 0.821, "jh": 0.484, "mrsi": 0.600, "brfd": 6964,  "asym": 8.11}},
+]
+
+_CAT = {
+    "ELITE":       {"col": "#2ECC71", "fc": "#0D2D1A", "ec": "#2ECC71",
+                    "rx": "Speed · Power · Very Heavy"},
+    "EXPLOSIVE":   {"col": "#3A9FE0", "fc": "#0D1F35", "ec": "#3A9FE0",
+                    "rx": "Power · Heavy · Short GCT"},
+    "BALANCED":    {"col": "#F0A030", "fc": "#2D1E08", "ec": "#F0A030",
+                    "rx": "Heavy · Hypertrophy · Force"},
+    "DEVELOPMENTAL":{"col":"#E0C040", "fc": "#2D2600", "ec": "#E0C040",
+                    "rx": "Hypertrophy · Strength Build"},
+    "RED FLAG":    {"col": "#E74C3C", "fc": "#2D0A08", "ec": "#E74C3C",
+                    "rx": "Light · Recovery · RTP Protocol"},
+}
+
+def _get_cat(rsi, asym):
+    if asym >= 12: return "RED FLAG"
+    if rsi >= 1.00: return "ELITE"
+    if rsi >= 0.90: return "EXPLOSIVE"
+    if rsi >= 0.80: return "BALANCED"
+    if rsi >= 0.70: return "DEVELOPMENTAL"
+    return "RED FLAG"
+
+def _trend(v_now, v_prev, higher_better=True):
+    pct = (v_now - v_prev) / abs(v_prev) * 100
+    if abs(pct) < 1.5: return "→", "#888888", f"{v_now:.3f}"
+    improved = pct > 0 if higher_better else pct < 0
+    return ("↑", "#2ECC71", f"{v_now:.3f}") if improved else ("↓", "#E74C3C", f"{v_now:.3f}")
+
+_DB = "#181716"
+_TW = "#F0EDE8"
+_DM = "#808070"
+
+with plt.rc_context({"figure.facecolor": _DB, "axes.facecolor": _DB,
+                     "font.family": "DejaVu Sans",
+                     "axes.spines.top": False, "axes.spines.right": False,
+                     "axes.spines.left": False, "axes.spines.bottom": False}):
+    _dfig = plt.figure(figsize=(18, 11), facecolor=_DB)
+
+    # ── Header ──
+    _dfig.text(0.03, 0.975, "NU VOLLEYBALL — TEAM READINESS REPORT",
+               fontsize=17, fontweight="bold", color=_TW, va="top")
+    _dfig.text(0.97, 0.975, "Assessment: April 17, 2026  |  Baseline: April 3, 2026",
+               fontsize=9, color=_DM, va="top", ha="right")
+    _dfig.text(0.03, 0.938,
+               "Hawkin Dynamics CMJ  ·  Metrics: RSI, mRSI, Jump Height, Braking RFD, Bilateral Asymmetry  "
+               "·  Classification: Pentheny Decision Tree  ·  Ref: Cabarkapa et al. 2023, Bishop et al.",
+               fontsize=8, color=_DM, va="top")
+
+    # ── Column headers ──
+    _hdrs = [
+        (0.03,  "ATHLETE"),
+        (0.235, "CATEGORY"),
+        (0.370, "RSI"),
+        (0.470, "mRSI"),
+        (0.570, "JUMP HEIGHT"),
+        (0.680, "ASYM %"),
+        (0.760, "BRK RFD (N/s)"),
+        (0.870, "PRESCRIPTION"),
+    ]
+    for _hx, _hl in _hdrs:
+        _dfig.text(_hx, 0.895, _hl, fontsize=7.5, color=_DM,
+                   fontweight="bold", va="top")
+
+    # ── Athlete rows ──
+    _ROW_TOPS = [0.845, 0.715, 0.585, 0.455, 0.325, 0.195]
+    _ROW_H    = 0.115
+
+    for _i, _ath in enumerate(_NU_MEN):
+        _y0  = _ROW_TOPS[_i] - _ROW_H
+        _y_c = _ROW_TOPS[_i] - _ROW_H / 2   # vertical center
+        _a17 = _ath["apr17"]
+        _a03 = _ath["apr3"]
+        _cat = _get_cat(_a17["rsi"], _a17["asym"])
+        _ci  = _CAT[_cat]
+
+        # Row background strip
+        _bg = mpatches.Rectangle(
+            (0.02, _y0 + 0.005), 0.960, _ROW_H - 0.010,
+            facecolor=_ci["fc"], edgecolor=_ci["ec"],
+            linewidth=0.8, alpha=0.55,
+            transform=_dfig.transFigure, clip_on=False)
+        _dfig.add_artist(_bg)
+
+        # Athlete name + position
+        _dfig.text(0.035, _y_c + 0.025, _ath["name"],
+                   fontsize=11, fontweight="bold", color=_TW, va="center")
+        _dfig.text(0.035, _y_c - 0.018, _ath["pos"],
+                   fontsize=8, color=_DM, va="center")
+
+        # Category badge
+        _bx = mpatches.FancyBboxPatch(
+            (0.235, _y0 + 0.018), 0.118, _ROW_H - 0.036,
+            boxstyle="round,pad=0.008",
+            facecolor=_ci["fc"], edgecolor=_ci["col"], linewidth=1.5,
+            transform=_dfig.transFigure, clip_on=False)
+        _dfig.add_artist(_bx)
+        _dfig.text(0.294, _y_c, _cat,
+                   fontsize=8, fontweight="bold", color=_ci["col"],
+                   ha="center", va="center")
+
+        # RSI
+        _arr, _arc, _val = _trend(_a17["rsi"], _a03["rsi"])
+        _dfig.text(0.370, _y_c + 0.018, _val,
+                   fontsize=12, fontweight="bold", color=_arc, va="center")
+        _dfig.text(0.370, _y_c - 0.020,
+                   f"{_arr}  prev {_a03['rsi']:.3f}",
+                   fontsize=7.5, color=_arc, va="center")
+
+        # mRSI
+        _arr, _arc, _val = _trend(_a17["mrsi"], _a03["mrsi"])
+        _dfig.text(0.470, _y_c + 0.018, _val,
+                   fontsize=12, fontweight="bold", color=_arc, va="center")
+        _dfig.text(0.470, _y_c - 0.020,
+                   f"{_arr}  prev {_a03['mrsi']:.3f}",
+                   fontsize=7.5, color=_arc, va="center")
+
+        # Jump Height
+        _arr, _arc, _val = _trend(_a17["jh"], _a03["jh"])
+        _dfig.text(0.570, _y_c + 0.018, f"{_a17['jh']:.3f} m",
+                   fontsize=12, fontweight="bold", color=_arc, va="center")
+        _dfig.text(0.570, _y_c - 0.020,
+                   f"{_arr}  prev {_a03['jh']:.3f} m",
+                   fontsize=7.5, color=_arc, va="center")
+
+        # Asymmetry
+        _ac = "#E74C3C" if _a17["asym"] >= 10 else "#F0A030" if _a17["asym"] >= 7 else _TW
+        _flag = "  ⚑" if _a17["asym"] >= 10 else ""
+        _dfig.text(0.680, _y_c + 0.018, f"{_a17['asym']:.1f}%{_flag}",
+                   fontsize=12, fontweight="bold", color=_ac, va="center")
+        _dfig.text(0.680, _y_c - 0.020,
+                   f"prev {_a03['asym']:.1f}%",
+                   fontsize=7.5, color=_DM, va="center")
+
+        # Braking RFD
+        _arr, _arc, _val = _trend(_a17["brfd"], _a03["brfd"])
+        _dfig.text(0.760, _y_c + 0.018, f"{int(_a17['brfd']):,}",
+                   fontsize=12, fontweight="bold", color=_arc, va="center")
+        _dfig.text(0.760, _y_c - 0.020,
+                   f"{_arr}  prev {int(_a03['brfd']):,}",
+                   fontsize=7.5, color=_arc, va="center")
+
+        # Prescription
+        _dfig.text(0.870, _y_c, _ci["rx"],
+                   fontsize=9, color=_ci["col"], va="center", fontweight="bold")
+
+    # ── Category legend ──
+    _dfig.text(0.03, 0.085, "PERFORMANCE CATEGORIES :", fontsize=7.5,
+               color=_DM, va="center", fontweight="bold")
+    for _li, (_cn, _cd) in enumerate(_CAT.items()):
+        _lx = 0.21 + _li * 0.155
+        _sq = mpatches.Rectangle((_lx, 0.075), 0.012, 0.022,
+                                   facecolor=_cd["fc"], edgecolor=_cd["col"],
+                                   linewidth=1.2,
+                                   transform=_dfig.transFigure, clip_on=False)
+        _dfig.add_artist(_sq)
+        _dfig.text(_lx + 0.016, 0.086, _cn, fontsize=7.5, color=_cd["col"], va="center")
+
+    # ── Footer ──
+    _dfig.text(0.03, 0.035,
+               "RSI = Reactive Strength Index  ·  mRSI = Modified RSI  ·  Asym = L|R Peak Braking Force  "
+               "·  BRK RFD = Braking Rate of Force Development  ·  ⚑ = Asymmetry flag (≥10%)",
+               fontsize=7, color=_DM, va="bottom")
+    _dfig.text(0.03, 0.018,
+               "Ref: Cabarkapa et al. (2023) J Strength Cond Res 38(2):e72–e77  ·  "
+               "Bishop et al. Selecting Metrics That Matter  ·  "
+               "Pentheny Force Plate Decision Tree",
+               fontsize=7, color=_DM, va="bottom")
+
+    plt.savefig("images/team_readiness_dashboard.png", dpi=150,
+                bbox_inches="tight", facecolor=_DB)
+    plt.close()
+    print("team_readiness_dashboard.png saved")

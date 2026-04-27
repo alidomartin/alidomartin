@@ -134,3 +134,19 @@ A production-grade pipeline connecting force plate assessments to individualized
 ![Sports Performance ML System Architecture](images/ml_system_architecture.png)
 
 > *CI/CD via GitHub Actions → Docker → DigitalOcean. Fully containerized, reproducible, and observable.*
+
+---
+
+## Team Readiness Report — NU Volleyball (Men)
+
+Real Hawkin Dynamics CMJ data from two testing sessions (Apr 3 and Apr 17, 2026) across 6 athletes. Each athlete is classified using the **Pentheny Force Plate Decision Tree** and receives an individualized prescription based on RSI, mRSI, jump height, braking RFD, and bilateral asymmetry.
+
+**Key findings this block:**
+- All 6 athletes showed RSI and mRSI decline from Apr 3 → Apr 17, consistent with mid-season fatigue accumulation (Cabarkapa et al., 2023)
+- **Mukaba** flagged: asymmetry spiked from 2.7% → 12.4% → `RED FLAG` → Light/Recovery protocol
+- **Taguibolos** declining: RSI 0.955 → 0.821, BrkRFD dropped 37% → `BALANCED` → Heavy/Hypertrophy focus
+- **Disquitado** largest absolute drop: RSI 1.109 → 0.952, BrkRFD 14,635 → 9,827 N/s
+
+![NU Volleyball Team Readiness Report](images/team_readiness_dashboard.png)
+
+> *Ref: Cabarkapa et al. (2023) J Strength Cond Res 38(2):e72–e77 · Bishop et al. Selecting Metrics That Matter · Pentheny Force Plate Decision Tree*
