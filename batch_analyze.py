@@ -59,14 +59,16 @@ class CMJMetrics:
 # I/O helpers
 # ─────────────────────────────────────────────────────────────────
 
-def load_csv(path: Path) -> tuple[np.ndarray, np.ndarray]:
-    """Return (time_s, force_N) arrays from a two-column CSV."""
+def load_csv(source) -> tuple[np.ndarray, np.ndarray]:
+    """Return (time_s, force_N) from a CSV path or file-like object."""
     t, f = [], []
-    with open(path) as fh:
-        reader = csv.DictReader(fh)
-        for row in reader:
-            t.append(float(row["time_s"]))
-            f.append(float(row["force_N"]))
+    cm = open(source) if isinstance(source, (str, Path)) else source
+    reader = csv.DictReader(cm)
+    for row in reader:
+        t.append(float(row["time_s"]))
+        f.append(float(row["force_N"]))
+    if isinstance(source, (str, Path)):
+        cm.close()
     return np.array(t), np.array(f)
 
 
@@ -97,11 +99,12 @@ def estimate_body_weight(force: np.ndarray, fs: float) -> float:
     return float(np.mean(force[:n]))
 
 
-def integrate_velocity(force: np.ndarray, bw: float, fs: float) -> np.ndarray:
-    """Numerically integrate net force → COM velocity (m/s). Mass = bw/9.81."""
+def integrate_velocity(force: np.ndarray, bw: float, fs: float, start_idx: int = 0) -> np.ndarray:
+    """Numerically integrate net force → COM velocity (m/s), v=0 at start_idx."""
     mass = bw / 9.81
     net = force - bw
-    vel = np.cumsum(net) / (mass * fs)
+    vel = np.zeros(len(force))
+    vel[start_idx:] = np.cumsum(net[start_idx:]) / (mass * fs)
     return vel
 
 
@@ -115,7 +118,6 @@ def detect_phases(t: np.ndarray, f: np.ndarray, bw: float, fs: float) -> dict:
         quiet_end, unweight_start, braking_start, transfer_idx,
         propulsive_end, flight_end (= landing_start), series_end
     """
-    vel = integrate_velocity(f, bw, fs)
     threshold = 0.05 * bw  # 5% BW below quiet level = start of unweighting
 
     # Quiet ends where force first drops below BW - threshold
@@ -125,21 +127,26 @@ def detect_phases(t: np.ndarray, f: np.ndarray, bw: float, fs: float) -> dict:
             quiet_end = i
             break
 
-    # Braking starts at peak negative velocity
+    # Integrate velocity starting from quiet_end so v=0 at start of movement
+    vel = integrate_velocity(f, bw, fs, start_idx=quiet_end)
+
+    # Braking starts at peak negative velocity.
+    # Limit to 500 ms window so the search doesn't reach the flight phase,
+    # where gravity drives velocity sharply negative and corrupts argmin.
     search_start = quiet_end
-    search_end = min(quiet_end + int(fs), len(vel))
+    search_end = min(quiet_end + int(0.5 * fs), len(vel))
     braking_start = search_start + int(np.argmin(vel[search_start:search_end]))
 
-    # Transfer: velocity crosses zero (braking → propulsive)
+    # Transfer: first sample where velocity crosses zero (braking → propulsive)
     transfer_idx = braking_start
-    for i in range(braking_start, min(braking_start + int(0.5 * fs), len(vel))):
+    for i in range(braking_start, min(braking_start + int(0.6 * fs), len(vel))):
         if vel[i] >= 0:
             transfer_idx = i
             break
 
-    # Propulsive ends at takeoff: force drops to near zero
+    # Propulsive ends at takeoff: force drops below 20 N after transfer
     propulsive_end = transfer_idx
-    for i in range(transfer_idx, len(f)):
+    for i in range(transfer_idx + 1, len(f)):
         if f[i] < 20:
             propulsive_end = i
             break
@@ -181,7 +188,7 @@ def compute_metrics(
         return n_samples / fs * 1000
 
     # Jump height via takeoff velocity impulse method
-    vel = integrate_velocity(f, bw, fs)
+    vel = integrate_velocity(f, bw, fs, start_idx=ph["quiet_end"])
     v_takeoff = vel[ph["propulsive_end"]]
     jump_height = max(v_takeoff**2 / (2 * 9.81), 0.0)
 
@@ -199,14 +206,17 @@ def compute_metrics(
     # Landing metrics
     land_slice = f[ph["flight_end"]:]
     peak_land = float(np.max(land_slice)) if len(land_slice) else 0.0
-    # Loading rate: force rise from contact to peak
+    # Loading rate: force rise from contact to peak (kN/s)
     peak_land_idx = int(np.argmax(land_slice))
     if peak_land_idx > 0:
-        loading_rate = peak_land / (peak_land_idx / fs) / 1000  # kN/s
+        loading_rate = peak_land / (peak_land_idx / fs) / 1000
     else:
         loading_rate = 0.0
-    # Landing time: contact to COM velocity back to 0
-    vel_land = integrate_velocity(land_slice, bw, fs)
+    # Landing time: contact to COM velocity back to 0.
+    # Initial landing velocity = -v_takeoff (symmetry of ballistic flight).
+    mass = bw / 9.81
+    net_land = land_slice - bw
+    vel_land = -v_takeoff + np.cumsum(net_land) / (mass * fs)
     land_stop_idx = next((i for i, v in enumerate(vel_land) if v >= 0), len(vel_land))
     landing_time_ms = ms(land_stop_idx)
 
