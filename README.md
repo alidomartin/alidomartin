@@ -97,3 +97,40 @@ The CMJ landing curve is subdivided into three distinct phases based on COM velo
 ---
 
 > **Reference:** McMahon, J. J., Suchomel, T. J., Lake, J. P., & Comfort, P. (2018). Understanding the Key Phases of the Countermovement Jump Force-Time Curve. *Strength & Conditioning Journal, 40*(4), 96–106. https://doi.org/10.1519/ssc.0000000000000375
+
+---
+
+## Individualized Workout Prescription
+
+The CMJ force-time curve is more than a performance metric — it is a **readiness tool**. Each athlete's neuromuscular profile drives a different training prescription. Same assessment system, entirely different outputs.
+
+| CMJ Metric | Prescribes Toward |
+|---|---|
+| **High RSI + Low Asymmetry (≤5%)** | Speed / Power / Very Heavy loading — neurally demanding sessions |
+| **Low RSI + High Asymmetry (≥15%)** | Light / Very Light / Base — unilateral emphasis, return-to-play protocols |
+| **High Braking RFD (>4500 N/s)** | Power and speed work — athlete can express force rapidly |
+| **Low Braking RFD (<3000 N/s)** | Hypertrophy / Heavy — build capacity before expressing it |
+| **Declining Jump Height trend** | Reduce Speed/Power volume, increase recovery sessions |
+
+![Individualized Workout Prescription](images/workout_prescription.png)
+
+> *5 athletes. 5 different prescription profiles. Nobody gets the exact same mix.*
+
+---
+
+## Sports Performance ML System
+
+A production-grade pipeline connecting force plate assessments to individualized prescriptions at scale. CMJ readiness data flows through Kedro feature engineering pipelines, Prefect orchestration, and MLflow model tracking — from raw sensor output to a real-time prescription dashboard.
+
+| Component | Role |
+|---|---|
+| **Data Streaming App** | Parses raw `.parquet` from Hawkin Dynamics into structured CMJ phase features |
+| **Training Prefect Flow** | Trains Champion / Challenger readiness models via Kedro pipelines |
+| **Inference Prefect Flow** | Scores new sessions and outputs individualized workout prescriptions |
+| **Monitoring Prefect Flow** | Detects CMJ distribution drift and triggers automatic re-training |
+| **Model Registry (MLflow)** | Tracks experiments, stores Champion model, logs metrics per athlete |
+| **Prescription Dashboard (Dash)** | Real-time readiness scores and workout outputs for coaches |
+
+![Sports Performance ML System Architecture](images/ml_system_architecture.png)
+
+> *CI/CD via GitHub Actions → Docker → DigitalOcean. Fully containerized, reproducible, and observable.*

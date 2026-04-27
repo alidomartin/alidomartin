@@ -562,4 +562,290 @@ plt.savefig("images/landing_summary.png", dpi=150, bbox_inches="tight")
 plt.close()
 print("landing_summary.png saved")
 
+# ══════════════════════════════════════════════
+# INDIVIDUALIZED WORKOUT PRESCRIPTION
+# CMJ readiness metrics → training type distribution
+# ══════════════════════════════════════════════
+
+WORKOUT_TYPES = [
+    "Speed", "Power", "Very Heavy", "Heavy",
+    "Hypertrophy", "Light", "Very Light", "Base",
+]
+PRESC_COLORS = [
+    "#C0392B",  # Speed
+    "#E8541D",  # Power
+    "#7B3020",  # Very Heavy
+    "#A84020",  # Heavy
+    "#C49A6C",  # Hypertrophy
+    "#C8B08A",  # Light
+    "#DECCAA",  # Very Light
+    "#6A6A5A",  # Base
+]
+ATHLETES_PRESC = [
+    {"name": "Athlete 1", "rsi": 0.89, "jump_m": 0.52, "asym": 3,  "brfd": 4820,
+     "pct": [5, 25, 35, 13, 22, 0, 0, 0]},
+    {"name": "Athlete 2", "rsi": 0.71, "jump_m": 0.43, "asym": 8,  "brfd": 3540,
+     "pct": [4, 10, 8, 18, 27, 18, 9, 6]},
+    {"name": "Athlete 3", "rsi": 0.76, "jump_m": 0.47, "asym": 5,  "brfd": 3980,
+     "pct": [8, 20, 12, 20, 15, 15, 7, 3]},
+    {"name": "Athlete 4", "rsi": 0.58, "jump_m": 0.36, "asym": 19, "brfd": 2810,
+     "pct": [0, 5, 5, 12, 20, 25, 20, 13]},
+    {"name": "Athlete 5", "rsi": 0.81, "jump_m": 0.49, "asym": 6,  "brfd": 4320,
+     "pct": [10, 22, 20, 18, 16, 9, 3, 2]},
+]
+
+_P_BG  = "#1C1B1A"
+_P_TXT = "#F0EDE8"
+_P_DIM = "#888078"
+_prng  = np.random.default_rng(7)
+
+with plt.rc_context({
+    "figure.facecolor": _P_BG, "axes.facecolor": _P_BG,
+    "font.family": "DejaVu Sans",
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.spines.left": False, "axes.spines.bottom": False,
+}):
+    _pfig = plt.figure(figsize=(16, 9), facecolor=_P_BG)
+
+    _pfig.text(0.03, 0.976, "INDIVIDUALIZED WORKOUT PRESCRIPTION",
+               fontsize=17, fontweight="bold", color=_P_TXT, va="top")
+    _pfig.text(0.97, 0.976, "CMJ READINESS  →  TRAINING PRESCRIPTION",
+               fontsize=8.5, color=_P_DIM, va="top", ha="right")
+    _pfig.text(0.03, 0.938,
+               "Same system. Different prescriptions driven by CMJ readiness, "
+               "neuromuscular output, and asymmetry index.",
+               fontsize=8.5, color=_P_DIM, va="top")
+
+    # Legend squares using figure-space patches
+    _leg_y = 0.895
+    for _li, (_wt, _pc) in enumerate(zip(WORKOUT_TYPES, PRESC_COLORS)):
+        _lx = 0.215 + _li * 0.095
+        _sq = mpatches.Rectangle((_lx, _leg_y - 0.014), 0.012, 0.026,
+                                   facecolor=_pc, edgecolor="none",
+                                   transform=_pfig.transFigure, clip_on=False)
+        _pfig.add_artist(_sq)
+        _pfig.text(_lx + 0.015, _leg_y, _wt, fontsize=7.5, color=_P_TXT, va="center")
+
+    _pfig.text(0.215, 0.863, "SESSION TIMELINE",
+               fontsize=7.5, color=_P_DIM, fontweight="bold", va="top")
+    _pfig.text(0.455, 0.863, "WORKOUT TYPE DISTRIBUTION",
+               fontsize=7.5, color=_P_DIM, fontweight="bold", va="top")
+
+    _ROW_BOT = [0.685, 0.535, 0.385, 0.235, 0.075]
+    _ROW_H   = 0.135
+
+    for _i, _ath in enumerate(ATHLETES_PRESC):
+        _y0  = _ROW_BOT[_i]
+        _pct = np.array(_ath["pct"], dtype=float)
+
+        _pfig.text(0.03, _y0 + _ROW_H * 0.88, _ath["name"],
+                   fontsize=11, fontweight="bold", color=_P_TXT, va="top")
+        _pfig.text(0.03, _y0 + _ROW_H * 0.60,
+                   f"RSI: {_ath['rsi']:.2f}  |  JH: {_ath['jump_m']:.2f} m",
+                   fontsize=7.5, color=_P_DIM, va="top")
+        _ac = "#E8541D" if _ath["asym"] >= 15 else _P_TXT if _ath["asym"] <= 5 else _P_DIM
+        _pfig.text(0.03, _y0 + _ROW_H * 0.35,
+                   f"Asym: {_ath['asym']}%  |  Brk RFD: {_ath['brfd']:,} N/s",
+                   fontsize=7.5, color=_ac, va="top")
+
+        # Session timeline grid (2 rows × 16 cols = 32 sessions)
+        _ax_t = _pfig.add_axes([0.215, _y0 + 0.005, 0.225, _ROW_H - 0.010],
+                                 facecolor=_P_BG)
+        _ax_t.set_xlim(0, 16); _ax_t.set_ylim(0, 2)
+        _ax_t.axis("off")
+        _probs = _pct / _pct.sum()
+        _sess  = _prng.choice(len(WORKOUT_TYPES), size=32, p=_probs)
+        for _j, _wi in enumerate(_sess):
+            _ax_t.add_patch(plt.Rectangle(
+                (_j % 16 + 0.07, 1.12 - _j // 16), 0.80, 0.72,
+                facecolor=PRESC_COLORS[_wi],
+                edgecolor=_P_BG, linewidth=0.7, zorder=2,
+            ))
+
+        # Stacked horizontal bar
+        _ax_b = _pfig.add_axes([0.450, _y0 + 0.018, 0.520, _ROW_H - 0.034],
+                                 facecolor=_P_BG)
+        _ax_b.set_xlim(0, 100); _ax_b.set_ylim(0, 1)
+        _ax_b.axis("off")
+        _xp = 0.0
+        for _p, _pc in zip(_pct, PRESC_COLORS):
+            if _p <= 0:
+                continue
+            _ax_b.add_patch(plt.Rectangle(
+                (_xp, 0.12), _p, 0.76,
+                facecolor=_pc, edgecolor=_P_BG, linewidth=0.6,
+            ))
+            if _p >= 8:
+                _ax_b.text(_xp + _p / 2, 0.50, f"{_p:.0f}%",
+                           ha="center", va="center", fontsize=9,
+                           color=_P_TXT if _p >= 15 else "#1C1B1A",
+                           fontweight="bold", zorder=3)
+            _xp += _p
+
+    for _ni, _nt in enumerate([
+        "①  PRESCRIPTIONS CHANGE ATHLETE TO ATHLETE",
+        "②  VOLUME AND INTENSITY DRIVEN BY CMJ READINESS",
+        "③  NOBODY GETS THE EXACT SAME MIX",
+    ]):
+        _pfig.text(0.03 + _ni * 0.32, 0.035, _nt, fontsize=7.5, color=_P_DIM)
+
+    plt.savefig("images/workout_prescription.png", dpi=150,
+                bbox_inches="tight", facecolor=_P_BG)
+    plt.close()
+    print("workout_prescription.png saved")
+
+
+# ══════════════════════════════════════════════
+# SPORTS PERFORMANCE ML SYSTEM — ARCHITECTURE
+# End-to-end CMJ pipeline: plates → prescription
+# ══════════════════════════════════════════════
+
+_A_BG   = "#0D0D0D"
+_A_TXT  = "#F0EDE8"
+_A_DIM  = "#888078"
+_A_ARR  = "#666666"
+_A_DATA = ("#1A3D1A", "#3ABA5A")
+_A_FLOW = ("#0D1F44", "#3A7FD0")
+_A_REG  = ("#2D1244", "#9050E0")
+_A_UI   = ("#0D3030", "#30C0C0")
+_A_CI   = ("#2A2000", "#C0A000")
+
+
+def _abx(ax, x, y, w, h, title, sub="", fc="#0D1F44", ec="#3A7FD0", tfs=9):
+    ax.add_patch(mpatches.FancyBboxPatch(
+        (x, y), w, h, boxstyle="round,pad=0.10",
+        facecolor=fc, edgecolor=ec, linewidth=1.8, zorder=2,
+    ))
+    ty = y + h / 2 + (0.17 if sub else 0)
+    ax.text(x + w / 2, ty, title, ha="center", va="center",
+            fontsize=tfs, fontweight="bold", color=_A_TXT, zorder=3)
+    if sub:
+        ax.text(x + w / 2, y + h / 2 - 0.25, sub, ha="center", va="center",
+                fontsize=7.5, color="#AAAAAA", zorder=3)
+
+
+def _aar(ax, x1, y1, x2, y2, cs="arc3,rad=0.0", lbl=""):
+    ax.annotate("", xy=(x2, y2), xytext=(x1, y1),
+                arrowprops=dict(
+                    arrowstyle="-|>", color=_A_ARR, lw=1.5,
+                    mutation_scale=14, connectionstyle=cs,
+                ), zorder=5)
+    if lbl:
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        ax.text(mx, my, lbl, fontsize=7, color=_A_DIM, ha="center", va="center",
+                bbox=dict(fc=_A_BG, ec="none", pad=1.5), zorder=6)
+
+
+with plt.rc_context({
+    "figure.facecolor": _A_BG, "axes.facecolor": _A_BG,
+    "font.family": "DejaVu Sans",
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.spines.left": False, "axes.spines.bottom": False,
+}):
+    _afig, _aax = plt.subplots(figsize=(16, 9), facecolor=_A_BG)
+    _aax.set_facecolor(_A_BG)
+    _aax.set_xlim(0, 16); _aax.set_ylim(0, 9)
+    _aax.axis("off")
+
+    _aax.text(8, 8.72, "SPORTS PERFORMANCE ML SYSTEM",
+              ha="center", va="center", fontsize=21, fontweight="bold", color=_A_TXT)
+    _aax.text(8, 8.36,
+              "End-to-end CMJ readiness monitoring  ·  Kedro pipelines  ·  "
+              "Prefect orchestration  ·  MLflow tracking",
+              ha="center", va="center", fontsize=8.5, color=_A_DIM)
+
+    # CI/CD bar
+    _abx(_aax, 0.20, 7.82, 15.60, 0.38,
+         "CI/CD  ·  Local → Lint / pytest / GitHub Actions → Docker Build → DigitalOcean (Production)",
+         fc=_A_CI[0], ec=_A_CI[1], tfs=8)
+
+    # Data Sources (col 1)
+    _abx(_aax, 0.20, 5.80, 2.80, 1.75, "Force Plate Data",
+         "Hawkin Dynamics\n(.parquet / .csv)", fc=_A_DATA[0], ec=_A_DATA[1])
+    _abx(_aax, 0.20, 3.80, 2.80, 1.75, "Historical DB",
+         "Session Archive\nSQLite + Docker",  fc=_A_DATA[0], ec=_A_DATA[1])
+    _abx(_aax, 0.20, 1.80, 2.80, 1.75, "Unseen Session",
+         "New .parquet\nAuto-ingested",       fc=_A_DATA[0], ec=_A_DATA[1])
+
+    # Streaming App + Dashboard (col 2)
+    _abx(_aax, 3.30, 3.55, 2.30, 2.75, "Data Streaming\nApp",
+         "Python + Docker\nCMJ Phase Parser\nSession Formatter",
+         fc=_A_DATA[0], ec=_A_DATA[1])
+    _abx(_aax, 3.30, 1.80, 2.30, 1.50, "Prescription\nDashboard",
+         "Dash + Docker\nReadiness Scores\nWorkout Output",
+         fc=_A_UI[0], ec=_A_UI[1])
+
+    # Three Prefect Flows (col 3)
+    _abx(_aax, 5.90, 5.80, 5.00, 1.75, "Training Prefect Flow",
+         "Trigger Checker  →  Feature Eng. (Kedro)  →  Model Training\n"
+         "Champion / Challenger CMJ Readiness Model",
+         fc=_A_FLOW[0], ec=_A_FLOW[1])
+    _abx(_aax, 5.90, 3.75, 5.00, 1.80, "Inference Prefect Flow",
+         "New Session Subscription  →  Feature Eng. (Kedro)  →  Readiness Score\n"
+         "→  Individualized Workout Prescription Output",
+         fc=_A_FLOW[0], ec=_A_FLOW[1])
+    _abx(_aax, 5.90, 1.70, 5.00, 1.80, "Monitoring Prefect Flow",
+         "Performance Drift Checker  →  Monitoring Pipeline (Kedro)\n"
+         "Triggers Re-training if CMJ Distribution Shifts",
+         fc=_A_FLOW[0], ec=_A_FLOW[1])
+
+    # Model Registry + Orchestration (col 4)
+    _abx(_aax, 11.20, 4.45, 4.50, 3.10, "Model Registry &\nTracking Server",
+         "MLflow + SQLite\nChampion Model\nChallenger Model\nExperiment History",
+         fc=_A_REG[0], ec=_A_REG[1])
+    _abx(_aax, 11.20, 1.70, 4.50, 2.50, "Pipeline\nOrchestration Server",
+         "Prefect + Docker\nFlow Scheduling\nRe-training Alerts",
+         fc=_A_REG[0], ec=_A_REG[1])
+
+    # Data Sources → Streaming App
+    _aar(_aax, 3.00, 6.675, 3.30, 5.925)
+    _aar(_aax, 3.00, 4.675, 3.30, 4.925)
+    _aar(_aax, 3.00, 2.675, 3.30, 3.825)
+
+    # Streaming App → Flows
+    _aar(_aax, 5.60, 5.60,  5.90, 6.675)
+    _aar(_aax, 5.60, 4.925, 5.90, 4.65)
+    _aar(_aax, 5.60, 3.75,  5.90, 2.60)
+
+    # Training → Registry, Registry → Inference
+    _aar(_aax, 10.90, 6.675, 11.20, 6.45)
+    _aar(_aax, 11.20, 5.30,  10.90, 4.65, lbl="Champion\nModel")
+
+    # Monitoring → Orchestration
+    _aar(_aax, 10.90, 2.60, 11.20, 2.95)
+
+    # Re-training feedback loop (3 line segments + arrowhead into Training)
+    _aax.plot([15.70, 15.82], [2.95, 2.95],  color=_A_ARR, lw=1.5, zorder=4)
+    _aax.plot([15.82, 15.82], [2.95, 7.65],  color=_A_ARR, lw=1.5, zorder=4)
+    _aax.plot([15.82, 10.90], [7.65, 7.65],  color=_A_ARR, lw=1.5, zorder=4)
+    _aar(_aax, 10.90, 7.65, 10.90, 7.55)
+    _aax.text(15.84, 5.30, "Re-training\ntrigger", fontsize=7,
+              color=_A_DIM, ha="left", va="center")
+
+    # Inference → Dashboard
+    _aar(_aax, 5.90, 3.75, 5.60, 3.30)
+
+    # Legend
+    _leg_arch = [
+        (_A_DATA, "Data / Storage"),
+        (_A_FLOW, "Prefect Flows (Kedro)"),
+        (_A_REG,  "Model Registry / Orchestration"),
+        (_A_UI,   "Dashboard / UI"),
+        (_A_CI,   "CI/CD Pipeline"),
+    ]
+    for _li, ((_fc, _ec), _lbl) in enumerate(_leg_arch):
+        _lx = 0.50 + _li * 3.10
+        _aax.add_patch(mpatches.FancyBboxPatch(
+            (_lx, 0.18), 0.38, 0.52, boxstyle="round,pad=0.04",
+            facecolor=_fc, edgecolor=_ec, linewidth=1.2, zorder=2,
+        ))
+        _aax.text(_lx + 0.52, 0.44, _lbl, fontsize=8, color=_A_TXT, va="center")
+
+    plt.tight_layout(pad=0.4)
+    plt.savefig("images/ml_system_architecture.png", dpi=150,
+                bbox_inches="tight", facecolor=_A_BG)
+    plt.close()
+    print("ml_system_architecture.png saved")
+
+
 print("\nAll images generated successfully!")
