@@ -1,0 +1,190 @@
+{
+  "initialized_at": "2026-04-30T19:11:53.794285+00:00",
+  "session_count": 1,
+  "level": 3,
+  "xp": 480,
+  "knowledge": [
+    {
+      "id": "4fa51981-64ac-4392-a3d8-36745459bc16",
+      "domain": "biomechanics",
+      "insight": "Jump height must be calculated from takeoff velocity (v\u00b2/2g), not flight time \u2014 flight time overstates height due to asymmetric take-off/landing posture.",
+      "confidence": 1.0,
+      "source": "literature",
+      "timestamp": "2026-04-30T19:11:53.794413+00:00",
+      "tags": [
+        "cmj",
+        "metrics"
+      ]
+    },
+    {
+      "id": "6c49a6ea-d837-40bf-8a08-7a09ea4ed1d0",
+      "domain": "signal_processing",
+      "insight": "Always bound velocity searches to physiologically meaningful time windows. The global velocity minimum in a CMJ occurs at landing (flight phase), not at end-of-unweighting \u2014 an unbounded argmin will misidentify the phase.",
+      "confidence": 1.0,
+      "source": "error_correction",
+      "timestamp": "2026-04-30T19:11:53.794584+00:00",
+      "tags": [
+        "cmj",
+        "phase_detection",
+        "critical"
+      ]
+    },
+    {
+      "id": "2dec9d87-afde-4fc4-8213-0c518be1a51e",
+      "domain": "biomechanics",
+      "insight": "COM velocity is derived via impulse-momentum integration: v(t) = \u222b (F_net / m) dt  where F_net = GRF \u2212 BW. This is the industry gold standard for force-plate analysis.",
+      "confidence": 1.0,
+      "source": "literature",
+      "timestamp": "2026-04-30T19:11:53.794790+00:00",
+      "tags": [
+        "cmj",
+        "physics"
+      ]
+    },
+    {
+      "id": "395f0f0a-8b96-493e-87e2-a539cbe353f7",
+      "domain": "ai_safety",
+      "insight": "AI performance intelligence systems that feed high-stakes decisions (return-to-play, injury risk) require a rule-based contingency engine because AI models can hallucinate phase boundaries on atypical curves.",
+      "confidence": 1.0,
+      "source": "design",
+      "timestamp": "2026-04-30T19:11:53.795505+00:00",
+      "tags": [
+        "backup",
+        "safety",
+        "architecture"
+      ]
+    },
+    {
+      "id": "e5908af6-9c24-4d7f-a1c8-d1f758009292",
+      "domain": "system_design",
+      "insight": "A confidence gate alone is insufficient for AI safety. Sanity guards (physiological hard limits) must also pass independently \u2014 a model can be highly confident about a physically impossible output.",
+      "confidence": 1.0,
+      "source": "design",
+      "timestamp": "2026-04-30T19:11:53.796090+00:00",
+      "tags": [
+        "backup",
+        "safety"
+      ]
+    },
+    {
+      "id": "0e7d0d80-fff2-4c39-bf25-a831fa2e7178",
+      "domain": "biomechanics",
+      "insight": "CMJ landing consists of three distinct sub-phases: Loading (contact \u2192 peak GRF), Attenuation (peak GRF \u2192 local min), Control (local min \u2192 COM velocity = 0). mRSI and LPI are control-phase metrics.",
+      "confidence": 1.0,
+      "source": "literature",
+      "timestamp": "2026-04-30T19:11:53.796477+00:00",
+      "tags": [
+        "cmj",
+        "landing"
+      ]
+    },
+    {
+      "id": "8e146c4e-76d5-493d-a2a3-8a9c5bb03bec",
+      "domain": "signal_processing",
+      "insight": "A 10 ms Gaussian smoothing kernel (sigma = fs \u00d7 0.01) removes force-plate noise without distorting phase boundaries for typical CMJ analysis at 500\u20132000 Hz.",
+      "confidence": 0.9,
+      "source": "observation",
+      "timestamp": "2026-04-30T19:11:53.796844+00:00",
+      "tags": [
+        "cmj",
+        "filtering"
+      ]
+    },
+    {
+      "id": "fa5a5bd7-4913-4466-9aa3-bc898d8a442b",
+      "domain": "system_design",
+      "insight": "All automated decisions must be appended to an audit log (JSONL) with: audit_id, timestamp, source (ai/backup/flagged), confidence, sanity_flags, metrics. This is non-negotiable for athlete health systems.",
+      "confidence": 1.0,
+      "source": "design",
+      "timestamp": "2026-04-30T19:11:53.797238+00:00",
+      "tags": [
+        "audit",
+        "safety"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "id": "42c2ab6d-fa75-4da9-bb71-05a4651c5764",
+      "name": "cmj_phase_detection",
+      "description": "Rule-based detection of all 7 CMJ phases (quiet \u2192 landing) using velocity zero-crossings, GRF landmarks, and bounded search windows.",
+      "domain": "biomechanics",
+      "acquired_at": "2026-04-30T19:11:53.797514+00:00",
+      "proficiency": 0.9
+    },
+    {
+      "id": "42a58046-8a11-41a8-b73e-6bc5d17fd121",
+      "name": "physiological_sanity_validation",
+      "description": "Validate AI/model outputs against hard physiological limits (peak GRF, flight time, jump height, landing forces, phase durations).",
+      "domain": "ai_safety",
+      "acquired_at": "2026-04-30T19:11:53.797846+00:00",
+      "proficiency": 1.0
+    },
+    {
+      "id": "2ab86219-adb5-4327-8f5c-fd0557294f02",
+      "name": "confidence_gated_routing",
+      "description": "Route analysis requests between AI and rule-based engines using confidence threshold + sanity guard dual-gate logic.",
+      "domain": "system_design",
+      "acquired_at": "2026-04-30T19:11:53.798273+00:00",
+      "proficiency": 1.0
+    },
+    {
+      "id": "84e151e1-138a-47e3-831b-593d5a86c843",
+      "name": "impulse_momentum_integration",
+      "description": "Derive COM velocity from raw GRF using cumulative trapezoidal integration of net force divided by mass (scipy.integrate.cumulative_trapezoid).",
+      "domain": "biomechanics",
+      "acquired_at": "2026-04-30T19:11:53.798554+00:00",
+      "proficiency": 0.95
+    },
+    {
+      "id": "d5209d83-6bb2-4629-acfe-50f0351b79b9",
+      "name": "cmj_visualization",
+      "description": "Generate publication-quality phase-shaded CMJ force-time curve plots with dual-axis COM velocity overlays and annotated metric boxes.",
+      "domain": "data_visualization",
+      "acquired_at": "2026-04-30T19:11:53.798809+00:00",
+      "proficiency": 0.95
+    },
+    {
+      "id": "8cb0cf9b-10ba-4914-97d8-7d28b014b21a",
+      "name": "audit_logging",
+      "description": "Append-only JSONL audit logging for all automated decisions in high-stakes AI systems \u2014 includes source, confidence, flags, and metrics.",
+      "domain": "system_design",
+      "acquired_at": "2026-04-30T19:11:53.799250+00:00",
+      "proficiency": 1.0
+    }
+  ],
+  "agents": [
+    {
+      "id": "447096f5-69f1-404f-ac26-ca7e4da8eb2a",
+      "name": "CMJBackupBrain",
+      "purpose": "Rule-based contingency engine for the AI-driven performance intelligence system. Activates when AI confidence drops below 0.72 or sanity checks fail.",
+      "capabilities": [
+        "7-phase CMJ detection via velocity integration",
+        "Physiological sanity validation (8 hard limits)",
+        "Confidence-gated AI/backup routing",
+        "AI boundary cross-validation (\u00b1100ms tolerance)",
+        "Append-only audit logging",
+        "Human-review flagging for double anomalies"
+      ],
+      "built_at": "2026-04-30T19:11:53.799539+00:00",
+      "version": "1.0",
+      "active": true
+    }
+  ],
+  "level_ups": [
+    {
+      "from_level": 1,
+      "to_level": 2,
+      "xp_at_event": 130,
+      "timestamp": "2026-04-30T19:11:53.797537+00:00",
+      "title": "Observing"
+    },
+    {
+      "from_level": 2,
+      "to_level": 3,
+      "xp_at_event": 280,
+      "timestamp": "2026-04-30T19:11:53.798571+00:00",
+      "title": "Pattern Recognition"
+    }
+  ]
+}
