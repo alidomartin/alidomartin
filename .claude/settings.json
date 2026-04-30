@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -nc '{hookSpecificOutput:{hookEventName:\"PostToolUse\",additionalContext:\"DESIGN.md triggers — update DESIGN.md in this same change if any apply: (1) new pattern appearing twice (2) designer changes visual direction (3) PM notes repeated agent mistakes (4) review comment recurs (5) feature-area needs different density rules (6) mobile diverges from desktop (7) one-off becomes standard.\"}}'"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -f DESIGN.md && jq -nc --rawfile d DESIGN.md '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:(\"Project DESIGN.md is the source of design truth. Read it before generating UI/component code. Current contents:\\n\\n\" + $d)}}' || true"
+          }
+        ]
+      }
+    ]
+  }
+}
