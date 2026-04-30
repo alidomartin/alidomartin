@@ -1313,3 +1313,521 @@ with plt.rc_context({
                 bbox_inches="tight", facecolor=_FV_BG)
     plt.close()
     print("fv_profile.png saved")
+
+
+# ══════════════════════════════════════════════
+# POWER DEVELOPMENT FRAMEWORK
+# Turner et al. 2010 (SSC); Turner et al. 2020 Part I & II
+# ══════════════════════════════════════════════
+
+_PW_BG  = "#2C3E50"
+_PW_TXT = "#FFFFFF"
+_PW_DIM = "#95A5A6"
+
+_PLY_LVLS = [
+    {"name": "BILATERAL JUMPS",      "gct": "> 500 ms",   "ssc": "Long SSC",   "ex": "Box Jump  ·  CMJ  ·  Broad Jump",              "rsi": "—",      "col": "#77DD77", "bg": "#0D2D1A"},
+    {"name": "UNILATERAL JUMPS",     "gct": "300–500 ms", "ssc": "Long SSC",   "ex": "Lunge Jump  ·  Single-Leg Box Jump",           "rsi": "≥ 0.70", "col": "#3498DB", "bg": "#0D1F35"},
+    {"name": "LOADED JUMPS",         "gct": "250–400 ms", "ssc": "Transition", "ex": "Jump Squat 20–40% BM  ·  Hex Bar Jump",       "rsi": "≥ 0.90", "col": "#F39C12", "bg": "#2D1500"},
+    {"name": "FAST PLYOMETRICS",     "gct": "150–250 ms", "ssc": "Short SSC",  "ex": "Hurdle Hops  ·  Rapid Rebound Jumps",         "rsi": "≥ 1.10", "col": "#E74C3C", "bg": "#2D0A08"},
+    {"name": "REACTIVE PLYOMETRICS", "gct": "< 150 ms",   "ssc": "Short SSC",  "ex": "Drop Jump  ·  Depth Jump  ·  Sprint Bounds",  "rsi": "≥ 1.30", "col": "#9B59B6", "bg": "#2D1244"},
+]
+
+_PWR_EX = [
+    ("Deadlift",     12, "#E74C3C"),
+    ("Back Squat",   22, "#F39C12"),
+    ("Trap Bar DL",  30, "#F39C12"),
+    ("Power Clean",  55, "#77DD77"),
+    ("Jump Shrug",   65, "#77DD77"),
+    ("WL Deriv.",    80, "#9B59B6"),
+]
+
+with plt.rc_context({
+    "figure.facecolor": _PW_BG, "axes.facecolor": _PW_BG,
+    "font.family": "DejaVu Sans",
+    "axes.spines.top": False, "axes.spines.right": False,
+}):
+    _pwfig = plt.figure(figsize=(18, 10), facecolor=_PW_BG)
+
+    _pwfig.text(0.03, 0.975, "POWER DEVELOPMENT FRAMEWORK",
+                fontsize=18, fontweight="bold", color=_PW_TXT, va="top")
+    _pwfig.text(0.03, 0.940,
+                "SSC Mechanisms  ·  Plyometric Pyramid  ·  Exercise Power Outputs  ·  "
+                "Turner et al. 2010 & 2020  ·  Short SSC: GCT < 250 ms  ·  Long SSC: GCT > 250 ms",
+                fontsize=8.5, color=_PW_DIM, va="top")
+    _pwfig.text(0.97, 0.975, "N1 PERFORMANCE LAB PH",
+                fontsize=8.5, color=_PW_DIM, va="top", ha="right")
+
+    # SSC mechanism boxes
+    _ax_ssc = _pwfig.add_axes([0.03, 0.54, 0.46, 0.36], facecolor=_PW_BG)
+    _ax_ssc.set_xlim(0, 3); _ax_ssc.set_ylim(0, 2); _ax_ssc.axis("off")
+
+    _ssc_data = [
+        ("ECCENTRIC",    "#3498DB", 0.05, "#0D1F35",
+         ["Muscle lengthens under load", "Tendon stores elastic energy (EE)",
+          "↑ Stiffness → ↑ EE stored", "GTO inhibition allows stretch"]),
+        ("AMORTIZATION", "#F39C12", 1.07, "#2D1500",
+         ["Isometric transition", "Short SSC: < 250 ms (Drop Jump)",
+          "Long SSC: > 250 ms (CMJ)", "EE half-life 0.85 s — minimise!"]),
+        ("CONCENTRIC",   "#77DD77", 2.09, "#0D2D1A",
+         ["EE + contractile force", "CMJ vs SJ: +18–30% height",
+          "↑ SSC efficiency → less ATP", "Trained: reverses at drop jump"]),
+    ]
+    for _sn, _sc, _sx, _sbg, _spts in _ssc_data:
+        _ax_ssc.add_patch(mpatches.FancyBboxPatch(
+            (_sx, 0.05), 0.88, 1.88, boxstyle="round,pad=0.04",
+            facecolor=_sbg, edgecolor=_sc, linewidth=1.8, zorder=2))
+        _ax_ssc.text(_sx + 0.44, 1.82, _sn, ha="center", va="top",
+                     fontsize=9, fontweight="bold", color=_sc, zorder=3)
+        for _pi, _pt in enumerate(_spts):
+            _ax_ssc.text(_sx + 0.08, 1.48 - _pi * 0.34, f"· {_pt}",
+                         ha="left", va="top", fontsize=7, color=_PW_TXT, zorder=3)
+    for _arx in [0.93, 1.95]:
+        _ax_ssc.annotate("", xy=(_arx + 0.14, 0.99), xytext=(_arx, 0.99),
+                         arrowprops=dict(arrowstyle="-|>", color=_PW_DIM, lw=2.0), zorder=4)
+
+    # Power output bars
+    _pwfig.text(0.03, 0.517, "RELATIVE POWER OUTPUT BY EXERCISE  (W · kg⁻¹ BM)",
+                fontsize=8, color=_PW_DIM, fontweight="bold", va="top")
+    _ax_pwr = _pwfig.add_axes([0.10, 0.12, 0.39, 0.37], facecolor=_PW_BG)
+    _ax_pwr.set_xlim(0, 90); _ax_pwr.set_ylim(-0.5, len(_PWR_EX) - 0.5)
+    _ax_pwr.axis("off")
+    for _pi, (_ex, _wt, _col) in enumerate(_PWR_EX):
+        _ax_pwr.barh(_pi, _wt, height=0.60, facecolor=_col, alpha=0.85, zorder=2)
+        _ax_pwr.text(-1.5, _pi, _ex, ha="right", va="center", fontsize=8, color=_PW_TXT)
+        _ax_pwr.text(_wt + 1.5, _pi, f"{_wt} W/kg",
+                     ha="left", va="center", fontsize=8.5, fontweight="bold", color=_col)
+
+    # Plyometric pyramid
+    _ax_pyr = _pwfig.add_axes([0.52, 0.10, 0.46, 0.82], facecolor=_PW_BG)
+    _ax_pyr.set_xlim(-0.08, 1.12); _ax_pyr.set_ylim(-0.05, 1.10); _ax_pyr.axis("off")
+    _pwfig.text(0.75, 0.932, "PLYOMETRIC PROGRESSION PYRAMID",
+                fontsize=10, fontweight="bold", color=_PW_TXT, va="top", ha="center")
+    _pwfig.text(0.75, 0.910,
+                "Advance only when technically proficient at each level  ·  Turner et al. 2010",
+                fontsize=7, color=_PW_DIM, va="top", ha="center")
+
+    _nl = len(_PLY_LVLS)
+    for _li, _lv in enumerate(_PLY_LVLS):
+        _y0 = _li / _nl; _y1 = (_li + 1) / _nl
+        _pts = np.array([[_y0/2, _y0], [1-_y0/2, _y0], [1-_y1/2, _y1], [_y1/2, _y1]])
+        _ax_pyr.add_patch(mpatches.Polygon(
+            _pts, facecolor=_lv["bg"], edgecolor=_lv["col"], linewidth=1.8, zorder=2))
+        _ym = (_y0 + _y1) / 2
+        _ax_pyr.text(0.50, _ym + 0.030, _lv["name"],
+                     ha="center", va="center", fontsize=9, fontweight="bold",
+                     color=_lv["col"], zorder=3)
+        _ax_pyr.text(0.50, _ym + 0.002, _lv["ex"],
+                     ha="center", va="center", fontsize=7, color=_PW_TXT, zorder=3)
+        _ax_pyr.text(0.50, _ym - 0.025,
+                     f"GCT {_lv['gct']}  ·  {_lv['ssc']}",
+                     ha="center", va="center", fontsize=6.5, color=_PW_DIM, zorder=3)
+        _ax_pyr.text(_y0/2 - 0.015, _ym, f"RSI {_lv['rsi']}",
+                     ha="right", va="center", fontsize=6.5, color=_lv["col"], zorder=3)
+
+    _ax_pyr.annotate("", xy=(1.07, 0.98), xytext=(1.07, 0.02),
+                     arrowprops=dict(arrowstyle="-|>", color=_PW_DIM, lw=1.8), zorder=4)
+    _ax_pyr.text(1.082, 0.50, "INTENSITY & COMPLEXITY",
+                 fontsize=7.5, color=_PW_DIM, va="center", ha="left", rotation=90)
+
+    for _lx0, _lw, _lc, _ltxt in [
+        (0.05, 0.40, "#3498DB", "LONG SSC  ·  GCT > 250 ms  ·  CMJ / mRSI"),
+        (0.52, 0.43, "#E74C3C", "SHORT SSC  ·  GCT < 250 ms  ·  RSI (Drop Jump)"),
+    ]:
+        _ax_pyr.add_patch(mpatches.FancyBboxPatch(
+            (_lx0, -0.042), _lw, 0.055, boxstyle="round,pad=0.005",
+            facecolor={"#3498DB":"#0D1F35","#E74C3C":"#2D0A08"}[_lc],
+            edgecolor=_lc, linewidth=1.0, zorder=4))
+        _ax_pyr.text(_lx0 + _lw/2, -0.014, _ltxt,
+                     ha="center", va="center", fontsize=6, color=_lc, zorder=5)
+
+    _pwfig.text(0.03, 0.035,
+                "SSC = Stretch-Shortening Cycle  ·  GCT = Ground Contact Time  ·  "
+                "EE = Elastic Energy  ·  BM = Body Mass  ·  WL = Weightlifting derivatives",
+                fontsize=6.5, color=_PW_DIM, va="bottom")
+    _pwfig.text(0.03, 0.018,
+                "Turner & Jeffreys (2010) Strength Cond J  ·  "
+                "Turner et al. (2020) Developing Powerful Athletes Part I & II  ·  "
+                "Suchomel & Comfort cited in Turner 2020",
+                fontsize=6.5, color=_PW_DIM, va="bottom")
+
+    plt.savefig("images/power_framework.png", dpi=150,
+                bbox_inches="tight", facecolor=_PW_BG)
+    plt.close()
+    print("power_framework.png saved")
+
+
+# ══════════════════════════════════════════════
+# WORKLOAD MONITORING — ACWR FRAMEWORK
+# Soligard et al. 2016 (IOC Part 1); Gabbett 2016
+# ══════════════════════════════════════════════
+
+_WM_BG  = "#2C3E50"
+_WM_TXT = "#FFFFFF"
+_WM_DIM = "#95A5A6"
+
+_WM_WKS  = np.arange(1, 21)
+_WM_LOAD = np.array([260, 300, 360, 420, 450, 540, 460, 380,
+                      480, 510, 540, 510, 470, 430, 510, 490,
+                      380, 350, 330, 300], dtype=float)
+_WM_CHR  = np.array([float(np.mean(_WM_LOAD[max(0,i-3):i+1]))
+                      for i in range(20)])
+_WM_ACWR = _WM_LOAD / _WM_CHR
+_WM_RSI  = np.array([1.02, 1.04, 1.06, 1.03, 1.00, 0.92, 0.96, 1.00,
+                      0.97, 0.94, 0.90, 0.88, 0.90, 0.92, 0.88, 0.87,
+                      0.91, 0.94, 0.96, 0.99])
+
+_WM_PHASES = [("Pre-Season", 1, 8), ("In-Season", 9, 16), ("Competition", 17, 20)]
+_WM_PH_COL = ["#0D1F35", "#0D2D1A", "#2D1244"]
+_WM_PH_EC  = ["#3498DB", "#77DD77", "#9B59B6"]
+
+_WM_ZONES = [
+    (1.50, 2.20, "#E74C3C", "DANGER",        "> 1.5",  "Injury risk spikes — reduce load immediately"),
+    (1.30, 1.50, "#F39C12", "CAUTION",       "1.3–1.5","Elevated risk — monitor closely"),
+    (0.80, 1.30, "#77DD77", "SWEET SPOT ★",  "0.8–1.3","Optimal adaptation zone — maintain"),
+    (0.00, 0.80, "#3498DB", "UNDER-TRAINED", "< 0.8",  "Deconditioning risk — build gradually"),
+]
+
+with plt.rc_context({
+    "figure.facecolor": _WM_BG, "axes.facecolor": _WM_BG,
+    "font.family": "DejaVu Sans",
+    "axes.spines.top": False, "axes.spines.right": False,
+}):
+    _wmfig = plt.figure(figsize=(18, 10), facecolor=_WM_BG)
+
+    _wmfig.text(0.03, 0.975, "WORKLOAD MONITORING — ACWR FRAMEWORK",
+                fontsize=18, fontweight="bold", color=_WM_TXT, va="top")
+    _wmfig.text(0.03, 0.940,
+                "Acute:Chronic Workload Ratio  ·  IOC Consensus Statement (Soligard et al. 2016)  ·  "
+                "Gabbett (2016)  ·  CMJ RSI as internal readiness marker",
+                fontsize=8.5, color=_WM_DIM, va="top")
+    _wmfig.text(0.97, 0.975, "N1 PERFORMANCE LAB PH",
+                fontsize=8.5, color=_WM_DIM, va="top", ha="right")
+
+    # Phase shading label
+    _wmfig.text(0.03, 0.910, "SIMULATED 20-WEEK VOLLEYBALL SEASON",
+                fontsize=7.5, color=_WM_DIM, fontweight="bold", va="top")
+
+    # ── TOP: Weekly load + chronic average ──────────────────
+    _ax_ld = _wmfig.add_axes([0.03, 0.545, 0.625, 0.335], facecolor=_WM_BG)
+    for (_pn, _ps, _pe), _pfc, _pec in zip(_WM_PHASES, _WM_PH_COL, _WM_PH_EC):
+        _ax_ld.axvspan(_ps - 0.5, _pe + 0.5, facecolor=_pfc, alpha=0.6, zorder=1)
+        _ax_ld.text((_ps + _pe) / 2, 590, _pn,
+                    ha="center", va="top", fontsize=8, color=_pec, fontweight="bold")
+    _ax_ld.bar(_WM_WKS, _WM_LOAD, color="#3498DB", alpha=0.70, width=0.7, zorder=2, label="Weekly Load (AU)")
+    _ax_ld.plot(_WM_WKS, _WM_CHR, color="#F39C12", lw=2.2, zorder=3, label="4-wk Chronic Average")
+    _ax_ld.set_xlim(0.5, 20.5); _ax_ld.set_ylim(0, 620)
+    _ax_ld.set_ylabel("Session Load (AU)", color=_WM_TXT, fontsize=8)
+    _ax_ld.tick_params(colors=_WM_TXT, labelsize=7.5)
+    _ax_ld.set_xticks([]); 
+    for _sp in _ax_ld.spines.values(): _sp.set_color(_WM_DIM)
+    _ax_ld.legend(loc="upper left", fontsize=7.5, framealpha=0.25,
+                  facecolor=_WM_BG, edgecolor=_WM_DIM, labelcolor=_WM_TXT)
+
+    # ── BOTTOM: ACWR ratio + zones ──────────────────────────
+    _ax_ac = _wmfig.add_axes([0.03, 0.13, 0.625, 0.385], facecolor=_WM_BG)
+    for _zlo, _zhi, _zcol, _zn, _zr, _zt in _WM_ZONES:
+        _ax_ac.axhspan(_zlo, _zhi, facecolor=_zcol, alpha=0.12, zorder=1)
+        _ax_ac.axhline(_zhi, color=_zcol, lw=0.6, ls="--", alpha=0.5, zorder=2)
+        _ax_ac.text(20.6, (_zlo + min(_zhi, 2.0)) / 2, f"{_zn}\n{_zr}",
+                    fontsize=6.5, color=_zcol, va="center", fontweight="bold")
+
+    for (_pn, _ps, _pe), _pfc in zip(_WM_PHASES, _WM_PH_COL):
+        _ax_ac.axvspan(_ps - 0.5, _pe + 0.5, facecolor=_pfc, alpha=0.4, zorder=1)
+
+    _ax_ac.plot(_WM_WKS, _WM_ACWR, color=_WM_TXT, lw=2.2, zorder=4, marker="o",
+                ms=5, label="ACWR")
+
+    # Danger zone annotations
+    for _wi in range(len(_WM_WKS)):
+        if _WM_ACWR[_wi] >= 1.5:
+            _ax_ac.annotate("⚑", xy=(_WM_WKS[_wi], _WM_ACWR[_wi]),
+                            xytext=(_WM_WKS[_wi], _WM_ACWR[_wi] + 0.08),
+                            fontsize=10, color="#E74C3C", ha="center", zorder=5)
+
+    # CMJ RSI twin axis
+    _ax_rsi = _ax_ac.twinx()
+    _ax_rsi.set_facecolor(_WM_BG)
+    _ax_rsi.plot(_WM_WKS, _WM_RSI, color="#77DD77", lw=1.8, ls="--",
+                 alpha=0.85, zorder=3, label="CMJ RSI")
+    _ax_rsi.set_ylabel("CMJ RSI", color="#77DD77", fontsize=8)
+    _ax_rsi.tick_params(axis="y", colors="#77DD77", labelsize=7.5)
+    _ax_rsi.set_ylim(0.80, 1.15)
+    for _sp in _ax_rsi.spines.values(): _sp.set_color(_WM_DIM)
+
+    _ax_ac.set_xlim(0.5, 20.5); _ax_ac.set_ylim(0, 2.20)
+    _ax_ac.set_xlabel("Week", color=_WM_TXT, fontsize=8)
+    _ax_ac.set_ylabel("ACWR", color=_WM_TXT, fontsize=8)
+    _ax_ac.set_xticks(_WM_WKS)
+    _ax_ac.set_xticklabels([f"W{w}" for w in _WM_WKS], fontsize=7)
+    _ax_ac.tick_params(colors=_WM_TXT, labelsize=7.5)
+    for _sp in _ax_ac.spines.values(): _sp.set_color(_WM_DIM)
+
+    lines1, labels1 = _ax_ac.get_legend_handles_labels()
+    lines2, labels2 = _ax_rsi.get_legend_handles_labels()
+    _ax_ac.legend(lines1 + lines2, labels1 + labels2,
+                  loc="upper left", fontsize=7.5, framealpha=0.25,
+                  facecolor=_WM_BG, edgecolor=_WM_DIM, labelcolor=_WM_TXT)
+
+    # ── RIGHT: Zone guide cards ─────────────────────────────
+    _rx = 0.678
+    _wmfig.text(_rx, 0.895, "ACWR ZONE GUIDE", fontsize=9,
+                fontweight="bold", color=_WM_TXT, va="top")
+    _wmfig.text(_rx, 0.872, "Gabbett (2016)  ·  IOC Part 1",
+                fontsize=7, color=_WM_DIM, va="top")
+
+    for _zi, (_zlo, _zhi, _zcol, _zn, _zr, _zt) in enumerate(_WM_ZONES):
+        _cy = 0.825 - _zi * 0.140
+        _wmfig.add_artist(mpatches.FancyBboxPatch(
+            (_rx, _cy - 0.100), 0.300, 0.105,
+            boxstyle="round,pad=0.006",
+            facecolor={"#E74C3C":"#2D0A08","#F39C12":"#2D1500",
+                       "#77DD77":"#0D2D1A","#3498DB":"#0D1F35"}[_zcol],
+            edgecolor=_zcol, linewidth=1.2,
+            transform=_wmfig.transFigure, clip_on=False))
+        _wmfig.text(_rx + 0.010, _cy - 0.012, f"{_zn}  {_zr}",
+                    fontsize=8.5, fontweight="bold", color=_zcol, va="center")
+        _wmfig.text(_rx + 0.010, _cy - 0.038, _zt,
+                    fontsize=7, color=_WM_TXT, va="center")
+
+    # CMJ monitoring note
+    _wmfig.add_artist(mpatches.FancyBboxPatch(
+        (_rx, 0.270), 0.300, 0.175,
+        boxstyle="round,pad=0.006",
+        facecolor="#0D2D1A", edgecolor="#77DD77", linewidth=1.2,
+        transform=_wmfig.transFigure, clip_on=False))
+    _wmfig.text(_rx + 0.010, 0.432, "CMJ AS READINESS MARKER",
+                fontsize=8, fontweight="bold", color="#77DD77", va="top")
+    for _ni, _nt in enumerate([
+        "RSI ↓ with ACWR spike → flag fatigue",
+        "RSI recovery in taper → competition ready",
+        "mRSI trend mirrors chronic load curve",
+        "Asymmetry ↑ under high ACWR → injury risk",
+        "Monitor 2× per week during congestion",
+    ]):
+        _wmfig.text(_rx + 0.010, 0.408 - _ni * 0.026, f"· {_nt}",
+                    fontsize=6.8, color=_WM_TXT, va="top")
+
+    _wmfig.text(0.03, 0.035,
+                "ACWR = Acute:Chronic Workload Ratio  ·  "
+                "Acute Load = 1-week sRPE  ·  Chronic Load = 4-week rolling average  ·  "
+                "⚑ = ACWR ≥ 1.5 (danger zone flag)",
+                fontsize=6.5, color=_WM_DIM, va="bottom")
+    _wmfig.text(0.03, 0.018,
+                "Soligard et al. (2016) Br J Sports Med 50:1030–1041  ·  "
+                "Gabbett TJ (2016) Br J Sports Med 50:273–280  ·  "
+                "CMJ data: Hawkin Dynamics",
+                fontsize=6.5, color=_WM_DIM, va="bottom")
+
+    plt.savefig("images/workload_acwr.png", dpi=150,
+                bbox_inches="tight", facecolor=_WM_BG)
+    plt.close()
+    print("workload_acwr.png saved")
+
+
+# ══════════════════════════════════════════════
+# STRENGTH DEVELOPMENT — DOSE-RESPONSE
+# Suchomel et al. 2018; Peterson et al. 2004
+# ══════════════════════════════════════════════
+
+_ST_BG  = "#2C3E50"
+_ST_TXT = "#FFFFFF"
+_ST_DIM = "#95A5A6"
+
+_ST_BLOCKS = [
+    {"phase": "ANATOMICAL\nADAPTATION", "weeks": "3–4 wks",
+     "intensity": "50–70% 1RM", "sets": "2–4 sets",  "reps": "12–20 reps",
+     "rest": "< 90 s",  "goal": "Work capacity · Tissue tolerance · Movement quality",
+     "col": "#3498DB", "bg": "#0D1F35"},
+    {"phase": "HYPERTROPHY",            "weeks": "4–6 wks",
+     "intensity": "65–80% 1RM", "sets": "3–5 sets",  "reps": "8–12 reps",
+     "rest": "60–90 s","goal": "↑ CSA · ↑ Pennation angle · ↑ Force production platform",
+     "col": "#F39C12", "bg": "#2D1500"},
+    {"phase": "MAXIMAL\nSTRENGTH",      "weeks": "4–6 wks",
+     "intensity": "80–95% 1RM", "sets": "3–6 sets",  "reps": "2–6 reps",
+     "rest": "2–5 min","goal": "Neural drive · Peak force · MU recruitment · Rate coding",
+     "col": "#77DD77", "bg": "#0D2D1A"},
+    {"phase": "POWER / SPEED",          "weeks": "3–5 wks",
+     "intensity": "30–75% 1RM", "sets": "3–5 sets",  "reps": "3–5 reps",
+     "rest": "2–5 min","goal": "RFD · Velocity expression · Ballistic transfer to sport",
+     "col": "#9B59B6", "bg": "#2D1244"},
+]
+
+# Peterson 2004 — athletes: optimal at 85% 1RM, 8 sets/MG, 2 days/week
+# Illustrative effect-size curves centred on reported optima
+_st_int   = np.linspace(40, 100, 80)
+_st_int_es= np.exp(-0.5 * ((_st_int - 85) / 18)**2) * 1.35
+
+_st_freq  = np.array([1, 2, 3, 4, 5], dtype=float)
+_st_fr_es = np.array([0.55, 0.87, 0.75, 0.62, 0.40])
+
+_st_vol   = np.linspace(1, 16, 80)
+_st_vol_es= np.exp(-0.5 * ((_st_vol - 8) / 4)**2) * 1.15
+
+_ST_METHODS = [
+    ("Bilateral Compound",   "#77DD77", 5),
+    ("Eccentric / AEL",      "#77DD77", 5),
+    ("Variable Resistance",  "#77DD77", 4),
+    ("Heavy + Light Combo",  "#F39C12", 4),
+    ("Unilateral",           "#F39C12", 3),
+    ("Plyometric",           "#F39C12", 3),
+    ("Isolation / Machine",  "#E74C3C", 2),
+    ("BW / Kettlebell",      "#E74C3C", 2),
+    ("Train to Failure",     "#E74C3C", 1),
+]
+
+with plt.rc_context({
+    "figure.facecolor": _ST_BG, "axes.facecolor": _ST_BG,
+    "font.family": "DejaVu Sans",
+    "axes.spines.top": False, "axes.spines.right": False,
+}):
+    _stfig = plt.figure(figsize=(18, 10), facecolor=_ST_BG)
+
+    _stfig.text(0.03, 0.975, "STRENGTH DEVELOPMENT — DOSE-RESPONSE",
+                fontsize=18, fontweight="bold", color=_ST_TXT, va="top")
+    _stfig.text(0.03, 0.940,
+                "Block Periodization Sequence  ·  Optimal Dose for Athletes  ·  "
+                "Suchomel et al. 2018  ·  Peterson et al. 2004 (n = 370 effect sizes)",
+                fontsize=8.5, color=_ST_DIM, va="top")
+    _stfig.text(0.97, 0.975, "N1 PERFORMANCE LAB PH",
+                fontsize=8.5, color=_ST_DIM, va="top", ha="right")
+
+    # ── LEFT: Block periodization ────────────────────────────
+    _stfig.text(0.03, 0.905, "BLOCK PERIODIZATION SEQUENCE  (Suchomel et al. 2018)",
+                fontsize=8.5, color=_ST_DIM, fontweight="bold", va="top")
+
+    _nb = len(_ST_BLOCKS)
+    for _bi, _bl in enumerate(_ST_BLOCKS):
+        _bx = 0.03 + _bi * 0.145
+        _stfig.add_artist(mpatches.FancyBboxPatch(
+            (_bx, 0.13), 0.138, 0.745,
+            boxstyle="round,pad=0.006",
+            facecolor=_bl["bg"], edgecolor=_bl["col"], linewidth=1.8,
+            transform=_stfig.transFigure, clip_on=False))
+
+        # Arrow between blocks
+        if _bi < _nb - 1:
+            _stfig.text(_bx + 0.143, 0.505, "→",
+                        fontsize=14, color=_ST_DIM, va="center", ha="center")
+
+        # Phase number + name
+        _stfig.text(_bx + 0.069, 0.855, f"BLOCK {_bi+1}",
+                    fontsize=7.5, color=_bl["col"], ha="center", va="top",
+                    fontweight="bold")
+        _stfig.text(_bx + 0.069, 0.830, _bl["phase"],
+                    fontsize=9, color=_bl["col"], ha="center", va="top",
+                    fontweight="bold", multialignment="center")
+        _stfig.text(_bx + 0.069, 0.785, _bl["weeks"],
+                    fontsize=8, color=_ST_DIM, ha="center", va="top")
+
+        # Metrics
+        for _mi, (_mk, _mv) in enumerate([
+            ("Intensity", _bl["intensity"]),
+            ("Volume",    _bl["sets"]),
+            ("Reps",      _bl["reps"]),
+            ("Rest",      _bl["rest"]),
+        ]):
+            _my = 0.730 - _mi * 0.075
+            _stfig.text(_bx + 0.010, _my, _mk + ":",
+                        fontsize=7, color=_ST_DIM, va="top")
+            _stfig.text(_bx + 0.128, _my, _mv,
+                        fontsize=7.5, color=_ST_TXT, va="top", ha="right",
+                        fontweight="bold")
+
+        # Goal
+        _stfig.text(_bx + 0.069, 0.385, "GOAL",
+                    fontsize=7, color=_bl["col"], ha="center", va="top",
+                    fontweight="bold")
+        _stfig.text(_bx + 0.069, 0.360, _bl["goal"],
+                    fontsize=6.5, color=_ST_TXT, ha="center", va="top",
+                    multialignment="center", wrap=True)
+
+    # Key principle (Suchomel)
+    _stfig.add_artist(mpatches.FancyBboxPatch(
+        (0.03, 0.085), 0.572, 0.038,
+        boxstyle="round,pad=0.005",
+        facecolor="#0D2D1A", edgecolor="#77DD77", linewidth=1.0,
+        transform=_stfig.transFigure, clip_on=False))
+    _stfig.text(0.316, 0.105,
+                "★  Weaker athletes: establish strength foundation first  ·  "
+                "Stronger athletes: can layer power while maintaining strength",
+                fontsize=7.5, color="#77DD77", ha="center", va="center")
+
+    # ── MIDDLE: Dose-response curves ────────────────────────
+    _stfig.text(0.638, 0.905,
+                "OPTIMAL DOSE — ATHLETES  (Peterson et al. 2004, n = 370 ES)",
+                fontsize=8.5, color=_ST_DIM, fontweight="bold", va="top")
+
+    # Intensity curve
+    _ax_int = _stfig.add_axes([0.625, 0.580, 0.175, 0.290], facecolor=_ST_BG)
+    _ax_int.fill_between(_st_int, _st_int_es, alpha=0.20, color="#77DD77")
+    _ax_int.plot(_st_int, _st_int_es, color="#77DD77", lw=2.0)
+    _ax_int.axvline(85, color="#F39C12", lw=1.5, ls="--")
+    _ax_int.text(85, _ax_int.get_ylim()[1] if _ax_int.get_ylim()[1] > 0 else 1.4,
+                 "85%", fontsize=8, color="#F39C12", ha="center", va="bottom")
+    _ax_int.set_xlabel("Intensity (% 1RM)", color=_ST_TXT, fontsize=7.5)
+    _ax_int.set_ylabel("Effect Size", color=_ST_TXT, fontsize=7.5)
+    _ax_int.set_title("INTENSITY", color="#77DD77", fontsize=8, fontweight="bold", pad=4)
+    _ax_int.tick_params(colors=_ST_TXT, labelsize=7)
+    for _sp in _ax_int.spines.values(): _sp.set_color(_ST_DIM)
+
+    # Frequency bars
+    _ax_fr = _stfig.add_axes([0.625, 0.200, 0.175, 0.290], facecolor=_ST_BG)
+    _bars = _ax_fr.bar(_st_freq, _st_fr_es, color="#3498DB", alpha=0.80, width=0.60)
+    _bars[1].set_facecolor("#F39C12")  # optimal = 2 days
+    _ax_fr.set_xlabel("Frequency (days/week)", color=_ST_TXT, fontsize=7.5)
+    _ax_fr.set_ylabel("Effect Size", color=_ST_TXT, fontsize=7.5)
+    _ax_fr.set_title("FREQUENCY", color="#3498DB", fontsize=8, fontweight="bold", pad=4)
+    _ax_fr.set_xticks(_st_freq)
+    _ax_fr.tick_params(colors=_ST_TXT, labelsize=7)
+    _ax_fr.text(2, _st_fr_es[1] + 0.02, "Optimal\n2 days",
+                ha="center", va="bottom", fontsize=6.5, color="#F39C12")
+    for _sp in _ax_fr.spines.values(): _sp.set_color(_ST_DIM)
+
+    # Volume curve
+    _ax_vol = _stfig.add_axes([0.820, 0.390, 0.155, 0.290], facecolor=_ST_BG)
+    _ax_vol.fill_between(_st_vol, _st_vol_es, alpha=0.20, color="#9B59B6")
+    _ax_vol.plot(_st_vol, _st_vol_es, color="#9B59B6", lw=2.0)
+    _ax_vol.axvline(8, color="#F39C12", lw=1.5, ls="--")
+    _ax_vol.text(8, 1.18, "8 sets", fontsize=8, color="#F39C12", ha="center", va="bottom")
+    _ax_vol.set_xlabel("Volume (sets / MG)", color=_ST_TXT, fontsize=7.5)
+    _ax_vol.set_ylabel("Effect Size", color=_ST_TXT, fontsize=7.5)
+    _ax_vol.set_title("VOLUME", color="#9B59B6", fontsize=8, fontweight="bold", pad=4)
+    _ax_vol.tick_params(colors=_ST_TXT, labelsize=7)
+    for _sp in _ax_vol.spines.values(): _sp.set_color(_ST_DIM)
+
+    # Optimal prescription callout
+    _stfig.add_artist(mpatches.FancyBboxPatch(
+        (0.820, 0.135), 0.155, 0.235,
+        boxstyle="round,pad=0.006",
+        facecolor="#0D2D1A", edgecolor="#77DD77", linewidth=1.5,
+        transform=_stfig.transFigure, clip_on=False))
+    _stfig.text(0.898, 0.355, "ATHLETE OPTIMAL",
+                fontsize=8, fontweight="bold", color="#77DD77", ha="center", va="top")
+    _stfig.text(0.898, 0.330, "Peterson et al. 2004",
+                fontsize=6.5, color=_ST_DIM, ha="center", va="top")
+    for _oi, (_ok, _ov) in enumerate([
+        ("Intensity", "85% 1RM"),
+        ("Volume",    "8 sets / MG"),
+        ("Frequency", "2 days / wk"),
+        ("Rest",      "2–5 min"),
+        ("VL thresh", "≤ 20%"),
+    ]):
+        _oy = 0.302 - _oi * 0.034
+        _stfig.text(0.828, _oy, _ok + ":", fontsize=7.5, color=_ST_DIM, va="top")
+        _stfig.text(0.970, _oy, _ov, fontsize=7.5, color=_ST_TXT,
+                    va="top", ha="right", fontweight="bold")
+
+    _stfig.text(0.03, 0.035,
+                "CSA = Cross-Sectional Area  ·  MU = Motor Unit  ·  AEL = Accentuated Eccentric Loading  ·  "
+                "MG = Muscle Group  ·  RFD = Rate of Force Development  ·  VL = Velocity Loss",
+                fontsize=6.5, color=_ST_DIM, va="bottom")
+    _stfig.text(0.03, 0.018,
+                "Suchomel et al. (2018) Sports Med  ·  "
+                "Peterson, Rhea & Alvar (2004) J Strength Cond Res 18(2):377–382  ·  "
+                "Bilateral > unilateral for max strength; eccentric + AEL produce greatest adaptations",
+                fontsize=6.5, color=_ST_DIM, va="bottom")
+
+    plt.savefig("images/strength_dose_response.png", dpi=150,
+                bbox_inches="tight", facecolor=_ST_BG)
+    plt.close()
+    print("strength_dose_response.png saved")

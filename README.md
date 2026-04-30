@@ -100,6 +100,53 @@ The CMJ landing curve is subdivided into three distinct phases based on COM velo
 
 ---
 
+## Power Development Framework
+
+The stretch-shortening cycle (SSC) is the foundation of all explosive athletic movement. Understanding its mechanisms — and how to systematically train them — is what separates informed power development from generic plyometric programming.
+
+| SSC Phase | Mechanism | Key Variable |
+|---|---|---|
+| **Eccentric** | Tendon loads elastic energy (EE); stiffness determines storage | Rate of loading |
+| **Amortization** | Isometric transition; EE at risk of heat loss | Duration (< 250ms = Short SSC) |
+| **Concentric** | EE + contractile force → enhanced output | CMJ vs SJ: +18–30% height |
+
+![Power Development Framework](images/power_framework.png)
+
+> *Short SSC (GCT < 250ms): Drop Jump, sprinting — RSI metric. Long SSC (GCT > 250ms): CMJ, loaded jumps — Jump Height + mRSI. Pyramid progression: advance only when technically proficient. Power outputs: Deadlift ~12 W/kg → Weightlifting derivatives ~80 W/kg (Turner et al. 2020).*
+
+**References:** Turner & Jeffreys (2010) Strength Cond J · Turner et al. (2020) Developing Powerful Athletes Part I & II
+
+---
+
+## Workload Monitoring — ACWR Framework
+
+The Acute:Chronic Workload Ratio (ACWR) quantifies training load management. The IOC consensus statement identifies poor load management as a major injury risk factor. The "sweet spot" (ACWR 0.8–1.3) produces optimal adaptation; spikes above 1.5 significantly elevate injury risk. CMJ RSI tracks internal readiness in parallel.
+
+| ACWR Zone | Range | Status |
+|---|---|---|
+| **Sweet Spot ★** | 0.8–1.3 | Optimal adaptation — maintain |
+| **Caution** | 1.3–1.5 | Elevated risk — monitor closely |
+| **Danger Zone** | > 1.5 | Injury risk spikes — reduce load immediately |
+| **Under-Trained** | < 0.8 | Deconditioning risk — build gradually |
+
+![Workload ACWR Framework](images/workload_acwr.png)
+
+> *RSI declines with ACWR spikes and recovers during taper — CMJ is the internal readiness marker that validates external load data. (Soligard et al. 2016; Gabbett 2016)*
+
+---
+
+## Strength Development — Dose-Response
+
+Block periodization sequences Anatomical Adaptation → Hypertrophy → Maximal Strength → Power. Peterson et al. (2004) meta-analysis of 370 effect sizes identified the optimal dose for athletes: **85% 1RM, 8 sets per muscle group, 2 days per week**. Weaker athletes build the strength foundation first; stronger athletes layer power on top.
+
+![Strength Dose-Response](images/strength_dose_response.png)
+
+> *Bilateral compound lifts + eccentric/AEL training produce the greatest comprehensive strength adaptations (Suchomel et al. 2018). Training to failure is NOT necessary for maximum strength gains.*
+
+**References:** Suchomel et al. (2018) Sports Med · Peterson, Rhea & Alvar (2004) J Strength Cond Res 18(2):377–382
+
+---
+
 ## Force-Velocity Profile — VBT Zone Prescriber
 
 The force-velocity (F-V) curve maps the inverse relationship between external load and movement velocity. Understanding where an athlete operates on this curve — and where they are *deficient* — drives exercise selection and velocity-based training (VBT) prescription.
