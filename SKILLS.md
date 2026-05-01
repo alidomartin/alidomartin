@@ -1,13 +1,26 @@
-# Skills & Agent Roster
+# Skills & Agent Roster — N1 Performance Lab
+
+## Governing Authority
+
+All agents operate under the **N1 Master Workspace** (Notion). That system — Instructions.md, Memory.md, Context.md — defines Claude's identity, behavioral rules, technical standards, and output aesthetics. These agents are operational tools within that system, not replacements for it.
+
+**Martin Alido** is the founder and final decision-maker on all scientific, product, and business matters.
+
+---
 
 ## Team Structure
 
 ```
-           CEO
-          /   \
-founding-engineer  [specialist agents hired as needed]
-          \
-       qa-engineer
+Martin Alido (Founder)
+        |
+  N1 Master Workspace
+  (Instructions.md governs all)
+        |
+     ceo (Operations Coordinator)
+      /        \
+founding-engineer   [specialist agents as hired]
+      \
+   qa-engineer
 ```
 
 ---
@@ -15,92 +28,92 @@ founding-engineer  [specialist agents hired as needed]
 ## Agents
 
 ### `ceo`
-**Role:** Vision, prioritization, team coordination, and hiring.
+**Role:** Operational coordination, initiative planning, and agent hiring. Assists Martin — does not replace him.
 
 **When to invoke:**
-- Setting or clarifying product direction
 - Breaking a large goal into delegated work
-- Making product/business tradeoffs
+- Coordinating multiple agents toward a shared outcome
 - Identifying a capability gap and hiring a new agent
-- Orchestrating multiple agents toward a shared outcome
 
-**Key power:** Can create new agent files in `.claude/agents/` to expand the team.
+**Does not:** Override Instructions.md, make scientific calls, write code, or validate implementations.
 
 ---
 
 ### `founding-engineer`
-**Role:** Core product development — architecture, implementation, infrastructure, and technical decisions.
+**Role:** All technical implementation — signal processing pipelines, ML orchestration, data architecture, Vercel/GCP infrastructure, editorial system tooling.
 
 **When to invoke:**
-- Building new features end-to-end
-- Debugging and fixing production issues
-- Setting up or modifying infrastructure and CI/CD
-- Making architectural decisions
-- Refactoring existing code
+- Building or extending any N1 technical system
+- Debugging production issues
+- Architecture decisions and code review
 
-**Handoff:** Always coordinates with `qa-engineer` before marking work done.
+**Stack:** C++/CUDA (signal processing) · Python (ML/orchestration) · R (stats rendering only) · Bazel (all code) · GCP/Linux · Vercel
+
+**Handoff:** Always passes to `qa-engineer` before marking work done.
 
 ---
 
 ### `qa-engineer`
-**Role:** Quality assurance — validation, testing, security review, and go/no-go decisions before shipping.
+**Role:** Three-domain validation — code correctness/security, biomechanics data integrity, editorial standards compliance.
 
 **When to invoke:**
-- Validating work completed by `founding-engineer`
+- Validating any work before it ships
 - Writing or expanding test suites
-- Auditing code for bugs, regressions, or security issues
-- Investigating reported bugs
+- Auditing code or data outputs
 
-**Verdict format:** Issues a clear **GO** or **NO-GO** with specific findings.
+**Verdict:** Formal **GO** or **NO-GO** with specific findings across all three domains.
 
 ---
 
 ## Workflow
 
 ```
-CEO sets goal & delegates
+Martin sets goal
+        ↓
+ceo breaks into work and delegates
         ↓
 founding-engineer implements
-        ↓
-   hands off to qa-engineer with:
-   - what was built
-   - files changed
-   - happy path
-   - known edge cases
+  (Bazel · GCP stack · N1 style rules)
         ↓
 qa-engineer validates
+  (code · biomechanics data · editorial standards)
         ↓
-   GO  → CEO ships
-   NO-GO → founding-engineer fixes → qa-engineer re-tests
+  GO  → ships
+  NO-GO → founding-engineer fixes → qa-engineer re-tests
+        ↓
+ceo flags Memory.md updates to N1 Master Workspace
 ```
-
-## Hiring New Agents
-
-The CEO hires new agents by:
-1. Creating `.claude/agents/<role>.md` with frontmatter + system prompt
-2. Adding the agent to the roster and workflow in this file
-
-**Roles available to hire:**
-
-| Role | Trigger |
-|---|---|
-| `growth-engineer` | Acquisition, analytics, or A/B experimentation work |
-| `designer` | UI/UX, design system, or Figma handoff needed |
-| `data-engineer` | Data pipelines, warehousing, or analytics infra |
-| `devops-engineer` | Deployment, monitoring, scaling, or incident response |
-| `product-manager` | Requirements docs, user research, roadmap planning |
-| `security-engineer` | Threat modeling, pentesting, or compliance audit |
-| `technical-writer` | Docs, runbooks, or onboarding guides |
 
 ---
 
-## Technical Standards
+## Hiring New Agents
+
+CEO hires by creating `.claude/agents/<role>.md` — must include an N1 compliance section. Update this file after every hire.
+
+| Role | Trigger |
+|---|---|
+| `growth-engineer` | Acquisition, analytics, or A/B experimentation |
+| `designer` | UI/UX, Brutus design system, Figma handoff |
+| `data-engineer` | GCP pipelines, BigQuery, analytics infrastructure |
+| `devops-engineer` | Vercel deployment, GCP monitoring, incident response |
+| `content-producer` | Flywheel execution, platform scheduling, editorial formatting |
+| `security-engineer` | Threat modeling, compliance, code audit |
+
+---
+
+## N1 Technical Standards (enforced by all agents)
 
 | Area | Standard |
 |---|---|
-| Security | OWASP Top 10 — validate at system boundaries only |
-| Comments | Only when the *why* is non-obvious |
-| Abstractions | Only when duplication is genuinely harmful |
-| Error handling | Only for real, reachable failure modes |
-| Commits | Descriptive messages focused on why, never skip hooks |
-| Tests | Required before any feature ships |
+| Signal processing | C++/CUDA · 1000Hz · GPU-accelerated |
+| ML / orchestration | Python only |
+| Statistics / viz | R only — final rendering, not pipelines |
+| Build system | Bazel — all code, no exceptions |
+| Cloud | GCP / Linux |
+| Deployment | Vercel |
+| Data precision | Exact values with units — no vague qualifiers |
+| Athlete privacy | Positional codes only (OH·A, MB·1, S·2) |
+| Timestamps | PHT (UTC+8) |
+| Aesthetics | Brutus Light (client) · Editorial Dark (internal) |
+| Prohibited words | delve, navigate, synergy, game-changing, unlock, leverage, holistic, empower, journey, elevate, supercharge, snippet, in a nutshell |
+| Syntax | No em-dashes · short sentences · one idea per sentence |
