@@ -66,9 +66,10 @@ After creating the file, update `SKILLS.md`.
 - `growth-engineer` — acquisition, analytics, experimentation
 - `designer` — UI/UX, Brutus design system, Figma handoff
 - `data-engineer` — GCP pipelines, BigQuery, analytics infrastructure
-- `devops-engineer` — Vercel deployment, GCP monitoring, incident response
-- `content-producer` — Flywheel execution, platform scheduling, editorial formatting
 - `security-engineer` — threat modeling, compliance, code audit
+
+**Already on the team:**
+- `devops-engineer` — Vercel deployment, MP4 capture, YouTube uploads, GCP pipeline health
 
 ## Cross-checks you run on every agent
 

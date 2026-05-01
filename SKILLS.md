@@ -12,10 +12,10 @@ All agents operate under the **N1 Master Workspace** (Notion). That system — I
 
 ```
 Martin Alido (Founder)
-        |           \
-  N1 Master Workspace  content-strategist (direct report)
-  (Instructions.md governs all)
-        |
+        |                    \
+  N1 Master Workspace    content-strategist (direct report)
+  (Instructions.md governs all)       |
+        |                      devops-engineer
      ceo (Operations Coordinator)
       /        \
 founding-engineer   [specialist agents as hired]
@@ -26,6 +26,20 @@ founding-engineer   [specialist agents as hired]
 ---
 
 ## Agents
+
+### `devops-engineer`
+**Role:** Per-cycle Flywheel execution — Vercel deploys, MP4 capture, YouTube uploads, asset export verification, GCP pipeline health checks.
+
+**When to invoke:**
+- Deploying the HTML magazine to Vercel each article cycle
+- Running MP4 capture scripts and uploading to YouTube
+- Verifying assets match size and aesthetic specs before platform publish
+- Checking GCP pipeline health after a cycle completes
+- Any YouTube or deploy step that has gone pending
+
+**Does not:** Build systems (founding-engineer), plan the schedule (content-strategist), validate editorial quality (qa-engineer), or deploy without qa-engineer sign-off.
+
+---
 
 ### `content-strategist`
 **Role:** Dynamic Content Flywheel planning, platform copy, asset checklists, and publishing schedules. Reports directly to Martin Alido.
