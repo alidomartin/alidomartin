@@ -1,141 +1,115 @@
-# Skills & Agent Roster — N1 Performance Lab
+# N1 Command Staff — Full Roster
 
 ## Governing Authority
 
-All agents operate under the **N1 Master Workspace** (Notion). That system — Instructions.md, Memory.md, Context.md — defines Claude's identity, behavioral rules, technical standards, and output aesthetics. These agents are operational tools within that system, not replacements for it.
+All agents operate under the **N1 Master Workspace** (Notion: Instructions.md, Memory.md, Context.md). That system defines Claude's identity, behavioral rules, technical standards, and output aesthetics. These agents are operational tools within that system, not replacements for it.
 
-**Martin Alido** is the founder and final decision-maker on all scientific, product, and business matters.
+**Martin Alido** — Founder, Sports Scientist, Data Architect. Final decision-maker on all scientific, product, business, and creative matters.
 
 ---
 
-## Team Structure
+## Command Staff Structure
 
 ```
 Martin Alido (Founder)
-        |                    \
-  N1 Master Workspace    content-strategist (direct report)
-  (Instructions.md governs all)       |
-        |                      devops-engineer
-     ceo (Operations Coordinator)
-      /        \
-founding-engineer   [specialist agents as hired]
-      \
-   qa-engineer
+        |
+  N1 Master Workspace (Instructions.md governs all)
+        |
+   the-architect (Principal Systems Architect)
+        |
+  ┌─────────────────────────────────────────┐
+  │           │              │              │
+Executive  Performance   Intelligence   Creative
+           Lab            Engine         Studio
 ```
 
 ---
 
-## Agents by Department
+## Pillars & Agents
 
-### Operations
+### Executive
 
-#### `ceo`
-**Role:** Operational coordination, initiative planning, and agent hiring. Assists Martin — does not replace him.
-
-**When to invoke:**
-- Breaking a large goal into delegated work
-- Coordinating multiple agents toward a shared outcome
-- Identifying a capability gap and hiring a new agent
-
-**Does not:** Override Instructions.md, make scientific calls, write code, or validate implementations.
-
----
-
-### Engineering
-
-#### `founding-engineer`
-**Role:** All technical implementation — signal processing pipelines, ML orchestration, data architecture, Vercel/GCP infrastructure, editorial system tooling.
-
-**When to invoke:**
-- Building or extending any N1 technical system
-- Debugging production issues
-- Architecture decisions and code review
-
-**Stack:** C++/CUDA (signal processing) · Python (ML/orchestration) · R (stats rendering only) · Bazel (all code) · GCP/Linux · Vercel
-
-**Handoff:** Always passes to `qa-engineer` before marking work done.
+| Agent | Role |
+|---|---|
+| `the-architect` | Principal Systems Architect. Holds the master view of the entire N1 system. Designs how all pillars and agents connect. |
+| `the-culture-architect` | Owns and enforces N1 voice, aesthetic standards, brand identity, and prohibited language. |
+| `the-dealmaker` | Business development, partnerships, client acquisition, and commercial strategy. |
+| `the-guardian` | Data privacy, athlete anonymization, and system integrity enforcement across all pillars. |
+| `ceo` | Operations Coordinator. Assists Martin in delegating work, coordinating agents, and hiring. |
+| `qa-engineer` | Three-domain validation: code correctness, biomechanics data integrity, editorial standards. GO/NO-GO. |
 
 ---
 
-#### `devops-engineer`
-**Role:** Per-cycle Flywheel execution — Vercel deploys, MP4 capture, YouTube uploads, asset export verification, GCP pipeline health checks.
+### Performance Lab
 
-**When to invoke:**
-- Deploying the HTML magazine to Vercel each article cycle
-- Running MP4 capture scripts and uploading to YouTube
-- Verifying assets match size and aesthetic specs before platform publish
-- Checking GCP pipeline health after a cycle completes
-- Any YouTube or deploy step that has gone pending
-
-**Does not:** Build systems (founding-engineer), plan the schedule (content-strategist), validate editorial quality (qa-engineer), or deploy without qa-engineer sign-off.
+| Agent | Role |
+|---|---|
+| `the-lab-director` | Lab operations: session scheduling, force plate setup, data file organization, and athlete protocol coordination. |
+| `the-performance-scientist` | Applied sports science support: evidence-based benchmarks, readiness frameworks, load management protocols. |
+| `the-bio-lab` | Biomechanics lab specialist: force plate calibration, signal integrity, raw data quality control. |
+| `the-applied-biomechanics` | Applied biomechanics analysis: phase identification, impulse-momentum, kinetic metrics, position benchmarking. |
+| `the-analyst` | Data processing and visualization: Python pipeline, R rendering, ggplot2, Positional Forensics Cards. |
 
 ---
 
-### Quality Assurance
+### Intelligence Engine
 
-#### `qa-engineer`
-**Role:** Three-domain validation — code correctness/security, biomechanics data integrity, editorial standards compliance.
-
-**When to invoke:**
-- Validating any work before it ships
-- Writing or expanding test suites
-- Auditing code or data outputs
-
-**Verdict:** Formal **GO** or **NO-GO** with specific findings across all three domains.
+| Agent | Role |
+|---|---|
+| `the-engine` | Core intelligence architecture: C++/CUDA signal processing, Python ML pipelines, system orchestration. |
+| `the-researcher` | Scientific literature, evidence synthesis, citation database, and benchmark validation. |
+| `the-strategist` | Cross-pillar intelligence synthesis: strategic briefs, opportunity identification, direction for Martin. |
+| `founding-engineer` | Feature implementation within the architecture the-engine defines. GCP/Vercel/Bazel. |
+| `devops-engineer` | Per-cycle Flywheel execution: Vercel deploys, MP4 capture, YouTube uploads, GCP health checks. |
 
 ---
 
-### Content
+### Creative Studio
 
-#### `content-strategist`
-**Role:** Dynamic Content Flywheel planning, platform copy, asset checklists, and publishing schedules. Reports directly to Martin Alido.
-
-**When to invoke:**
-- Starting a new article content cycle
-- Drafting platform copy (LinkedIn, Substack, X Thread, Threads, Instagram captions)
-- Building a Flywheel schedule with PHT timestamps
-- Tracking Flywheel status across active cycles
-
-**Does not:** Interpret biomechanics data, write code, validate technical outputs, or publish autonomously.
+| Agent | Role |
+|---|---|
+| `the-creative-director` | Visual direction: Brutus aesthetic system, asset briefs, animation storyboarding, style consistency. |
+| `the-social-strategist` | Platform strategy: audience positioning, content angles, Flywheel channel roles, growth tactics. |
+| `the-copywriter` | Production copy for all platforms: LinkedIn, Substack, WordPress, X Thread, Threads, Instagram. |
+| `the-marketer` | Brand positioning, audience development, lead generation, and go-to-market planning. |
+| `the-cfo-suite` | Financial operations: pricing, budgeting, revenue modeling, invoicing. |
+| `content-strategist` | Flywheel scheduling: PHT publishing calendar, asset checklists, platform copy coordination. |
 
 ---
 
-## Workflow
+## Flywheel Execution Chain
 
 ```
-Martin sets goal
+Martin completes analysis
         ↓
-ceo breaks into work and delegates
+the-applied-biomechanics structures findings
         ↓
-founding-engineer implements
-  (Bazel · GCP stack · N1 style rules)
+the-analyst produces visual outputs
         ↓
-qa-engineer validates
-  (code · biomechanics data · editorial standards)
+the-creative-director confirms aesthetic
         ↓
-  GO  → ships
-  NO-GO → founding-engineer fixes → qa-engineer re-tests
+the-copywriter produces platform copy
         ↓
-ceo flags Memory.md updates to N1 Master Workspace
+content-strategist builds Flywheel schedule
+        ↓
+qa-engineer validates (code · data · editorial)
+        ↓
+devops-engineer executes (deploy · capture · upload)
+        ↓
+Martin approves → publish
 ```
 
 ---
 
 ## Hiring New Agents
 
-CEO hires by creating `.claude/agents/<role>.md`. Every new agent file **must** include a `department` field in frontmatter. Add the agent to this roster under the correct department section. Update this file after every hire.
+The Architect blueprints and the ceo hires. Every new agent file requires:
 
-**Required frontmatter fields:** `name` · `department` · `description` · `tools`
+**Required frontmatter:** `name` · `department` · `description` · `tools`
 
-**Department options:** Operations · Engineering · Quality Assurance · Content
-If a new hire needs a new department, define it here first.
+**Department options:** Executive · Performance Lab · Intelligence Engine · Creative Studio
 
-| Role | Department | Trigger |
-|---|---|---|
-| `growth-engineer` | Engineering | Acquisition, analytics, or A/B experimentation |
-| `designer` | Content | UI/UX, Brutus design system, Figma handoff |
-| `data-engineer` | Engineering | GCP pipelines, BigQuery, analytics infrastructure |
-| `security-engineer` | Quality Assurance | Threat modeling, compliance, code audit |
+New agent must include: N1 compliance section, coordination chain, cross-checks on relevant agents.
 
 ---
 
@@ -152,6 +126,6 @@ If a new hire needs a new department, define it here first.
 | Data precision | Exact values with units — no vague qualifiers |
 | Athlete privacy | Positional codes only (OH·A, MB·1, S·2) |
 | Timestamps | PHT (UTC+8) |
-| Aesthetics | Brutus Light (client) · Editorial Dark (internal) |
+| Aesthetics | Brutus Light (client/motion) · Editorial Dark (internal/forensics) |
 | Prohibited words | delve, navigate, synergy, game-changing, unlock, leverage, holistic, empower, journey, elevate, supercharge, snippet, in a nutshell |
 | Syntax | No em-dashes · short sentences · one idea per sentence |
