@@ -12,8 +12,8 @@ All agents operate under the **N1 Master Workspace** (Notion). That system — I
 
 ```
 Martin Alido (Founder)
-        |
-  N1 Master Workspace
+        |           \
+  N1 Master Workspace  content-strategist (direct report)
   (Instructions.md governs all)
         |
      ceo (Operations Coordinator)
@@ -26,6 +26,19 @@ founding-engineer   [specialist agents as hired]
 ---
 
 ## Agents
+
+### `content-strategist`
+**Role:** Dynamic Content Flywheel planning, platform copy, asset checklists, and publishing schedules. Reports directly to Martin Alido.
+
+**When to invoke:**
+- Starting a new article content cycle
+- Drafting platform copy (LinkedIn, Substack, X Thread, Threads, Instagram captions)
+- Building a Flywheel schedule with PHT timestamps
+- Tracking Flywheel status across active cycles
+
+**Does not:** Interpret biomechanics data, write code, validate technical outputs, or publish autonomously.
+
+---
 
 ### `ceo`
 **Role:** Operational coordination, initiative planning, and agent hiring. Assists Martin — does not replace him.
