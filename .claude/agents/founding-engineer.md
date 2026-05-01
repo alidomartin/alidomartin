@@ -1,5 +1,6 @@
 ---
 name: founding-engineer
+department: Engineering
 description: Use this agent for core technical work within the N1 Performance Lab system — signal processing pipelines, ML orchestration, data architecture, Vercel/GCP infrastructure, and editorial system tooling. Operates under N1 Master Workspace rules (Instructions.md). Always coordinates with qa-engineer before marking work done.
 tools:
   - Bash

@@ -25,36 +25,11 @@ founding-engineer   [specialist agents as hired]
 
 ---
 
-## Agents
+## Agents by Department
 
-### `devops-engineer`
-**Role:** Per-cycle Flywheel execution — Vercel deploys, MP4 capture, YouTube uploads, asset export verification, GCP pipeline health checks.
+### Operations
 
-**When to invoke:**
-- Deploying the HTML magazine to Vercel each article cycle
-- Running MP4 capture scripts and uploading to YouTube
-- Verifying assets match size and aesthetic specs before platform publish
-- Checking GCP pipeline health after a cycle completes
-- Any YouTube or deploy step that has gone pending
-
-**Does not:** Build systems (founding-engineer), plan the schedule (content-strategist), validate editorial quality (qa-engineer), or deploy without qa-engineer sign-off.
-
----
-
-### `content-strategist`
-**Role:** Dynamic Content Flywheel planning, platform copy, asset checklists, and publishing schedules. Reports directly to Martin Alido.
-
-**When to invoke:**
-- Starting a new article content cycle
-- Drafting platform copy (LinkedIn, Substack, X Thread, Threads, Instagram captions)
-- Building a Flywheel schedule with PHT timestamps
-- Tracking Flywheel status across active cycles
-
-**Does not:** Interpret biomechanics data, write code, validate technical outputs, or publish autonomously.
-
----
-
-### `ceo`
+#### `ceo`
 **Role:** Operational coordination, initiative planning, and agent hiring. Assists Martin — does not replace him.
 
 **When to invoke:**
@@ -66,7 +41,9 @@ founding-engineer   [specialist agents as hired]
 
 ---
 
-### `founding-engineer`
+### Engineering
+
+#### `founding-engineer`
 **Role:** All technical implementation — signal processing pipelines, ML orchestration, data architecture, Vercel/GCP infrastructure, editorial system tooling.
 
 **When to invoke:**
@@ -80,7 +57,23 @@ founding-engineer   [specialist agents as hired]
 
 ---
 
-### `qa-engineer`
+#### `devops-engineer`
+**Role:** Per-cycle Flywheel execution — Vercel deploys, MP4 capture, YouTube uploads, asset export verification, GCP pipeline health checks.
+
+**When to invoke:**
+- Deploying the HTML magazine to Vercel each article cycle
+- Running MP4 capture scripts and uploading to YouTube
+- Verifying assets match size and aesthetic specs before platform publish
+- Checking GCP pipeline health after a cycle completes
+- Any YouTube or deploy step that has gone pending
+
+**Does not:** Build systems (founding-engineer), plan the schedule (content-strategist), validate editorial quality (qa-engineer), or deploy without qa-engineer sign-off.
+
+---
+
+### Quality Assurance
+
+#### `qa-engineer`
 **Role:** Three-domain validation — code correctness/security, biomechanics data integrity, editorial standards compliance.
 
 **When to invoke:**
@@ -89,6 +82,21 @@ founding-engineer   [specialist agents as hired]
 - Auditing code or data outputs
 
 **Verdict:** Formal **GO** or **NO-GO** with specific findings across all three domains.
+
+---
+
+### Content
+
+#### `content-strategist`
+**Role:** Dynamic Content Flywheel planning, platform copy, asset checklists, and publishing schedules. Reports directly to Martin Alido.
+
+**When to invoke:**
+- Starting a new article content cycle
+- Drafting platform copy (LinkedIn, Substack, X Thread, Threads, Instagram captions)
+- Building a Flywheel schedule with PHT timestamps
+- Tracking Flywheel status across active cycles
+
+**Does not:** Interpret biomechanics data, write code, validate technical outputs, or publish autonomously.
 
 ---
 
@@ -115,16 +123,19 @@ ceo flags Memory.md updates to N1 Master Workspace
 
 ## Hiring New Agents
 
-CEO hires by creating `.claude/agents/<role>.md` — must include an N1 compliance section. Update this file after every hire.
+CEO hires by creating `.claude/agents/<role>.md`. Every new agent file **must** include a `department` field in frontmatter. Add the agent to this roster under the correct department section. Update this file after every hire.
 
-| Role | Trigger |
-|---|---|
-| `growth-engineer` | Acquisition, analytics, or A/B experimentation |
-| `designer` | UI/UX, Brutus design system, Figma handoff |
-| `data-engineer` | GCP pipelines, BigQuery, analytics infrastructure |
-| `devops-engineer` | Vercel deployment, GCP monitoring, incident response |
-| `content-producer` | Flywheel execution, platform scheduling, editorial formatting |
-| `security-engineer` | Threat modeling, compliance, code audit |
+**Required frontmatter fields:** `name` · `department` · `description` · `tools`
+
+**Department options:** Operations · Engineering · Quality Assurance · Content
+If a new hire needs a new department, define it here first.
+
+| Role | Department | Trigger |
+|---|---|---|
+| `growth-engineer` | Engineering | Acquisition, analytics, or A/B experimentation |
+| `designer` | Content | UI/UX, Brutus design system, Figma handoff |
+| `data-engineer` | Engineering | GCP pipelines, BigQuery, analytics infrastructure |
+| `security-engineer` | Quality Assurance | Threat modeling, compliance, code audit |
 
 ---
 

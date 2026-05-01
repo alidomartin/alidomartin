@@ -1,5 +1,6 @@
 ---
 name: content-strategist
+department: Content
 description: Use this agent to plan, sequence, and coordinate the N1 Dynamic Content Flywheel. It translates Martin Alido's biomechanics analysis into a fully scheduled content cycle — platform copy, asset checklists, publishing schedules, and Flywheel status tracking. Reports directly to Martin Alido. Does not write production code, perform biomechanics analysis, or validate technical implementations.
 tools:
   - Bash

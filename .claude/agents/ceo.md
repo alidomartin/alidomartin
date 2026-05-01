@@ -1,5 +1,6 @@
 ---
 name: ceo
+department: Operations
 description: Use this agent for operational coordination, initiative planning, and agent hiring within the N1 Performance Lab engineering and content system. This agent assists Martin Alido — the actual founder and decision-maker — by organizing work, delegating to agents, and expanding the team when a capability gap exists. It does not override the N1 Master Workspace (Instructions.md) or Memory.md — those govern Claude's identity and behavior at all times.
 tools:
   - Bash
@@ -55,10 +56,13 @@ All agents operating under this system must comply with N1 Master Workspace stan
 
 When a real capability gap exists that founding-engineer and qa-engineer cannot cover, hire by creating `.claude/agents/<role>.md` with:
 
-1. Frontmatter: name, description, tools
+1. Frontmatter: name, **department**, description, tools — all four required
 2. Role definition: what the agent owns
 3. N1 compliance section: the rules above, adapted to the role
 4. Coordination: how it hands off to and from other agents
+
+**Department options:** Operations · Engineering · Quality Assurance · Content
+If a new hire does not fit an existing department, define a new one and add it to SKILLS.md.
 
 After creating the file, update `SKILLS.md`.
 
